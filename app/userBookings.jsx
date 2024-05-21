@@ -1,109 +1,64 @@
-import { React, useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
-  ImageBackground,
   Text,
   Pressable,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import { AuthContext } from "../AuthContext";
-import { AdminContext } from "../AdminContext";
-
-const { url } = process.env;
+import { AuthContext } from "./AuthContext";
+import { EventContext } from "./EventContext";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+
+const { url } = process.env;
 
 const Request = () => {
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
-  const { Token, currentAdmin } = useContext(AuthContext);
-  const { adminId } = useContext(AdminContext);
-
+  const [loading, setLoading] = useState(true);
+  const { Token } = useContext(AuthContext);
+  const { currentUser } = useContext(EventContext);
+  const [noRequests, setNoRequests] = useState(false);
   useEffect(() => {
     const fetchRequests = async () => {
-      let headersList = {
-        Accept: "*/*",
-        Authorization: `Bearer ${Token}`,
+        try {
+          let headersList = {
+            Accept: "*/*",
+            Authorization: `Bearer ${Token}`,
+          };
+  
+          let reqOptions = {
+            url: `${url}/bookings/bookingRequest/${currentUser?.id}`,
+            method: "GET",
+            headers: headersList,
+          };
+  
+          let response = await axios.request(reqOptions);
+          if (response.status === 200) {
+            setRequests(response.data);
+            setAllRequests(response.data);
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            setNoRequests(true);
+          } else {
+            Toast.show({
+              type: "error",
+              text1: "Error fetching requests",
+              text2: error.message,
+            });
+          }
+        } finally {
+          setLoading(false);
+        }
       };
-
-      let reqOptions = {
-        url: `http://backend.jashanz.com/bookings/receiverequest/${adminId}`,
-        method: "GET",
-        headers: headersList,
-      };
-
-      if (adminId) {
-        let response = await axios.request(reqOptions);
-        if (response.status === 200) {
-          setRequests(
-            response?.data.filter(
-              (request) => request.bookingStatus === "PENDING"
-            )
-          );
-          setAllRequests(response.data);
+      if(currentUser && Token)
+        {
+            fetchRequests();
         }
-      }
-    };
-
-    fetchRequests();
-  }, []);
-
-  const AcceptRequest = async (id) => {
-    let headersList = {
-      Accept: "*/*",
-      Authorization: `Bearer ${Token}`,
-    };
-
-    let reqOptions = {
-      url: `http://backend.jashanz.com/bookings/accept/${id}`,
-      method: "GET",
-      headers: headersList,
-    };
-    let response = await axios.request(reqOptions);
-    if (response.status === 200) {
-      let updatedRequests = requests.map((request) => {
-        if (request.id === id) {
-          request.bookingStatus = "ACCEPTED";
-        }
-        return request;
-      });
-      Toast.show({
-        type: "success",
-        text1: "Request Accepted",
-        visibilityTime: 2000,
-      });
-      setRequests(updatedRequests);
-    }
-  };
-
-  const RejectRequest = async (id) => {
-    let headersList = {
-      Accept: "*/*",
-      Authorization: `Bearer ${Token}`,
-    };
-
-    let reqOptions = {
-      url: `http://backend.jashanz.com/bookings/reject/${id}`,
-      method: "GET",
-      headers: headersList,
-    };
-    let response = await axios.request(reqOptions);
-    if (response.status === 200) {
-      let updatedRequests = requests.map((request) => {
-        if (request.id === id) {
-          request.bookingStatus = "REJECTED";
-        }
-        return request;
-      });
-      Toast.show({
-        type: "success",
-        text1: "Request Rejected",
-        visibilityTime: 2000,
-      });
-      setRequests(updatedRequests);
-    }
-  };
+    }, [currentUser, Token]);
 
   const filterRequests = (status) => {
     if (status === "all") {
@@ -115,9 +70,17 @@ const Request = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row", gap: 20, marginTop: 20 }}>
+   <View style={{ flexDirection: "row", gap: 20, marginTop: 20 }}>
         <Pressable
           style={styles.FilterBtn}
           onPress={(e) => filterRequests("PENDING")}
@@ -139,6 +102,10 @@ const Request = () => {
       </View>
 
       <View style={{ flex: 1, alignItems: "center", marginTop: 30 }}>
+        {
+            noRequests && 
+            <Text style={styles.noRequestsText}>No requests found.</Text>
+        }
         <ScrollView style={{ width: "100%", gap: 20 }}>
           {requests.map((request, id) => (
             <View
@@ -331,43 +298,49 @@ const Request = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-  },
-  FilterBtn: {
-    backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    backgroundColor: "white",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    padding: 10,
-    width: 120,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  btnTxt1: {
-    color: "black",
-    fontWeight: "600",
-  },
-  btnTxt2: {
-    color: "#28a745",
-    fontWeight: "600",
-  },
-  btnTxt3: {
-    color: "red",
-    fontWeight: "600",
-  },
+    container: {
+        flex: 1,
+        alignItems: "center",
+      },
+      FilterBtn: {
+        backgroundColor: "white",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        backgroundColor: "white",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        padding: 10,
+        width: 120,
+        borderRadius: 8,
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      btnTxt1: {
+        color: "black",
+        fontWeight: "600",
+      },
+      btnTxt2: {
+        color: "#28a745",
+        fontWeight: "600",
+      },
+      btnTxt3: {
+        color: "red",
+        fontWeight: "600",
+      },
+      noRequestsText: {
+        fontSize: 18,
+        fontWeight: "500",
+        color: "#555",
+        marginTop: 20,
+      },
 });
 
 export default Request;

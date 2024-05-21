@@ -3,8 +3,6 @@ import { Link, useNavigation } from "expo-router";
 import { useState, useEffect, useContext } from "react";
 import SelectDropdown from "react-native-select-dropdown";
 import axios from "axios";
-
-import Otp from "./otp";
 const {url} =process.env;
 
 const AdminSignup = ({ setCurrentScreen }) => {
@@ -215,7 +213,7 @@ const AdminSignup = ({ setCurrentScreen }) => {
                 </View>
             )}
 
-            {viewOtp && <Otp otp={otp} payload={payload} />}
+           
         </View>
     );
 }

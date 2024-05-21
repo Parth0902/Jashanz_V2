@@ -156,22 +156,19 @@ const Form = () => {
     const handleSubmit = async () => {
     // React Native does not have a default event parameter for non-web environments
     const formData = new FormData();
-    formData.append("event", new Blob([JSON.stringify(eventData)], { type: "application/json" }));
-    Images.forEach((image) => formData.append("images", {
-        uri: image.uri,
-        type: 'image/jpeg', // or the correct image type
-        name: image.uri.split('/').pop() // Assuming the URI has a filename at the end
-    }));
+    // formData.append("event=application/json", eventData, { type: "application/json" });
+    // Images?.forEach((image) => formData.append("images", 
+    //     image.uri
+    // ));
     
-    if (videoData) {
-        formData.append("video", {
-            uri: videoData.uri,
-            type: 'video/mp4', // or the correct video type
-            name: videoData.uri.split('/').pop() // Assuming the URI has a filename at the end
-        });
-    }
+    // if (videoData) {
+    //     formData.append("video", 
+    //     videoData.uri
+    // );
+    // }
     
         
+ 
     let headersList = {
         Accept: "*/*",
         Authorization:
@@ -185,7 +182,7 @@ const Form = () => {
     };
     
     let reqOptions2 = {
-        url: `${url}/admin/add-event/`,
+        url: `${url}/admin/add-event`,
         method: "POST",
         headers: headersList,
         data:formData
@@ -193,11 +190,13 @@ const Form = () => {
     
     
     try {
-        
+
+
         if (!Token) {
             Toast.show({ type: 'error', text1: 'Authentication error', text2: 'No token found.' });
             return;
         }
+
         const result = await axios.request(reqOptions1)
         if (result.status === 507) {
             Toast.show({ type: 'error', text1: 'Already Present!', text2: 'You are required to fill in only one event.' });
@@ -205,13 +204,12 @@ const Form = () => {
         }
         
         if (result.status === 200) {
-            console.log(JSON.stringify(formData));
+            // console.log(JSON.stringify(formData));
             // for (let [key, value] of formData.entries()) {
             //     console.log(key, value);
             // }                
-            console.log("spank1");
-            console.log("spank2");
             const response = await axios.request(reqOptions2);
+          
             console.log("Response Status:", response.status);
                 console.log("Response Data:", response.data);
                 Toast.show({ type: 'success', text1: 'Success', text2: 'You have successfully added a new event.' });
@@ -229,6 +227,8 @@ const Form = () => {
                     },
                     images: [],
                 });
+
+          
              
             }
         } catch (error) {

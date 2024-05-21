@@ -7,9 +7,9 @@ import {
   Image,
 } from "react-native";
 import { useContext, useState } from "react";
-import { Link } from "expo-router";
+import { Link,useNavigation } from "expo-router";
 import Alert from "../Components/alertComponent";
-import Signup from "../Components/signup";
+import Signup from "../Components/SignUpDummy.jsx";
 import { AuthContext } from "./AuthContext";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -20,6 +20,7 @@ export default function Login() {
     emailormobile: "",
     password: "",
   });
+  const navigation =useNavigation();
   const [showAlert, setShowAlert] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [alertData, setAlertData] = useState({
@@ -62,10 +63,12 @@ export default function Login() {
   const handleSubmit = async () => {
     try {
       const ack = await UserLogin(payload);
+      if(ack.status===403){
+        navigation.navigate('login')
+      }
       // Ensure ack is defined and check status or existence of data
       if (ack && ack.data && ack.status === 200) {
         console.log("Login successful", ack.data);
-        // Handle successful login here
       } else {
         // This could be an indication of a problem with the API call
         handleErrorResponse({ error: true, msg: 'Invalid username or password' });

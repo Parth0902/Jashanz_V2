@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Button, Pressable,ScrollView } from 'react-native';
 import { AuthContext } from "../AuthContext";
 const { url } = process.env;
-
+import { useNavigation } from 'expo-router';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -16,7 +16,7 @@ const Index = () => {
     const { logout, Token, currentAdmin } = useContext(AuthContext);
     const [AdminData, setAdminData] = useState({});
     const [isLogout, setIsLogout] = useState(false);
-   
+   const navigation = useNavigation();
     useEffect(() => {
         const FetchAdminData = async () => {
             try {
@@ -91,6 +91,22 @@ const Index = () => {
 
                     <AdminGuide/>
 
+                    <View style={styles.impLinks}>
+                        <Text style={{fontFamily:"Popins",fontSize:24,textAlign:'center'}}>Important Pages</Text>
+                        <Pressable onPress={() => navigation.navigate('contactUs')}>
+                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>1. Contact Us</Text>
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate('PrivacyPolicy')}>
+                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>2. Privacy Policy</Text>
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate('RefundPolicy')}>
+                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>3. Refund Policy</Text>
+                        </Pressable>
+                        <Pressable onPress={() => navigation.navigate('TermsAndConditions')}>
+                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>4. Terms and Conditions</Text>
+                        </Pressable>
+                    </View>
+
                 </View>
             </ScrollView>
         </View>
@@ -158,6 +174,11 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: 1, height: 1 }, // Text shadow offset
         textShadowRadius: 2, // 
       },
+      impLinks:{
+          width:"100%",
+          padding:20,
+          gap:20
+      }
 })
 
 export default Index;

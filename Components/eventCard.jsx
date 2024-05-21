@@ -44,8 +44,8 @@ const EventCard = ({ event }) => {
 const styles = StyleSheet.create({
   eventCard: {
     borderRadius: 20,
-    width: 200,
-    height: 290,
+    width: 210,
+    height: 320,
     backgroundColor: "#fff",
     zIndex: 0,
     elevation: 5, // Adjust the elevation value for the shadow effect

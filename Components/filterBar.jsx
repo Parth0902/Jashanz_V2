@@ -6,7 +6,6 @@ import { Link } from "expo-router";
 const FilterBar = ({handleOpenPress,handleClosePress,logout}) => {
   return (
     <View style={styles.filterBar}>
-     <Button title="logout" onPress={logout}></Button>
       <Pressable style={styles.filterBtn} onPress={()=>handleOpenPress('filter',3)} >
         {/* <Feather name="filter" size={20} color="black" /> */}
         <AntDesign name="filter" size={20} color="#4E9BD1" />

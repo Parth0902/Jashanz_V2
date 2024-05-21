@@ -5,8 +5,9 @@ import { useNavigation } from "expo-router";
 // Define JWT_TOKEN and TOKEN_KEY or replace them with actual values
 
 const TOKEN_KEY = "your_token_key";
-const User="userName" // Replace with your actual value
+const User = "userName" // Replace with your actual value
 const { url } = process.env;
+
 export const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -15,23 +16,47 @@ export const useAuth = () => {
 export const AuthContextProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentAdmin, setCurrentAdmin] = useState(null);
-  const [IsAdmin,setIsAdmin]=useState(false);
-  const [Token,setToken]=useState(null);
-
+  const [IsAdmin, setIsAdmin] = useState(false);
+  const [Token, setToken] = useState(null);
+  const [userRegisterPayload, setUserRegisterPayload] = useState(null);
 
   const UserRegister = async (payload, input) => {
     try {
+      console.log("UserRegister", payload, input)
       const ack = await axios.post(
         `${url}/api/customers/register/${input}`,
-        payload
+          payload
       );
-      console.log(ack.data);
       return ack;
     } catch (err) {
       return { error: true, msg: err.response.data.msg };
     }
   };
-  
+
+
+  const userOtp = async (payload) => {
+    console.log("userOtp", payload);
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "Content-Type": "application/json"
+      };
+
+      let response = await fetch(`${url}/api/generateUserOtp/${payload.mobileNumber}`, {
+       method: "GET",
+      headers: headersList
+      });
+      let data = await response.text();
+      if(response.status === 200){
+        setUserRegisterPayload(payload);
+      }
+
+      // console.log(data);
+      return response;
+    } catch (err) {
+      return { error: true, msg: err};
+    }
+  };
 
   const UserLogin = async (payload) => {
     try {
@@ -64,10 +89,10 @@ export const AuthContextProvider = ({ children }) => {
       }
     }
   };
-  
+
 
   const logout = async () => {
-    console.log("logout Pressed");
+    // console.log("logout Pressed");
     setToken(null);
     setIsAdmin(false);
     await SecureStore.deleteItemAsync(TOKEN_KEY);
@@ -80,33 +105,30 @@ export const AuthContextProvider = ({ children }) => {
   const AdminLogin = async (payload) => {
     try {
       const ack = await axios.post(`${url}/api/admin/login`, payload);
-      // console.log(ack);
-      await SecureStore.setItemAsync(TOKEN_KEY,ack.data.jwtToken);
+   
+      await SecureStore.setItemAsync(TOKEN_KEY, ack.data.jwtToken);
       setCurrentAdmin(ack.data.username);
       setToken(ack.data.jwtToken);
       setIsAdmin(true);
       return ack;
     } catch (err) {
       if (err.response) {
-        // If there's a response object, it means there was a response from the server
         return { error: true, msg: err.response.data.msg };
       } else if (err.request) {
-        // If there's a request object, it means the request was made but no response was received
         return { error: true, msg: 'No response received' };
       } else {
-        // If there's neither response nor request, there might be a different issue
         return { error: true, msg: 'Error in request', fullError: err.message };
       }
     }
   };
-  
+
 
 
   useEffect(() => {
     const loadToken = async () => {
       const t = await SecureStore.getItemAsync(TOKEN_KEY);
-      const u= await SecureStore.getItemAsync(User);
-      if(u && t){
+      const u = await SecureStore.getItemAsync(User);
+      if (u && t) {
         setCurrentUser(u);
         setToken(t);
       }
@@ -116,7 +138,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, UserLogin, logout, UserRegister ,Token,AdminLogin,IsAdmin,currentAdmin}}
+      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload}}
     >
       {children}
     </AuthContext.Provider>
