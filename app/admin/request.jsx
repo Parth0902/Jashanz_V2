@@ -35,6 +35,7 @@ const Request = () => {
 
       if (adminId) {
         let response = await axios.request(reqOptions);
+        console.log("admin request :",response.status)
         if (response.status === 200) {
           setRequests(
             response?.data.filter(

@@ -5,6 +5,7 @@ import Alert from '../Components/alertComponent';
 import { AuthContext } from "./AuthContext";
 import AdminSignup from "../Components/AdminSignup";
 import { useNavigation } from '@react-navigation/native';
+import Toast from "react-native-toast-message";
 
 export default function AdminAuth() {
     const navigation = useNavigation();
@@ -14,12 +15,7 @@ export default function AdminAuth() {
         emailormobile: "",
         password: ""
     })
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertData, setAlertData] = useState({
-        color: '',
-        backgroundColor: '',
-        text: '',
-    })
+
 
     const handlePress = () => {
         setCurrentScreen(false);
@@ -32,18 +28,19 @@ export default function AdminAuth() {
     }
 
     const handleErrorResponse = (response) => {
-        setAlertData({
-            color: '#721c24',
-            backgroundColor: '#f8d7da',
-            text: 'Invalid username or password',
-        });
-        DisplayAlert();
-
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: response?.msg,
+        visibilityTime: 3000,
+        autoHide: true,
+      });
     };
 
     const handleSubmit = async () => {
         try {
             const ack = await AdminLogin(payload);
+            // console.log(ack);
             if (ack.status === 200) {
                 navigation.navigate('index');
             } else {
@@ -56,14 +53,8 @@ export default function AdminAuth() {
 
     return (
         <View style={styles.container}>
+         
             {
-                showAlert &&
-                <Alert color={alertData.color} backgroundColor={alertData.backgroundColor} data={alertData.text} />
-            }
-
-
-            {
-
                 currentScreen &&
                 <>
 

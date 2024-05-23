@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useContext ,useRef} from "react";
-import { Dimensions,View, StyleSheet, TextInput, Text, Pressable, Button, Image, Platform, ScrollView } from "react-native";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { Dimensions, View, StyleSheet, TextInput, Text, Pressable, Button, Image, Platform, ScrollView } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import AdditionalService from "../../Components/addtionalService";
-import Toast from 'react-native-toast-message';
+import { MaterialIcons } from '@expo/vector-icons';
 import { AuthContext } from "../AuthContext";
 import { Video, ResizeMode } from 'expo-av';
 import axios from 'axios'
+import CustomDropdown from "../../Components/CustomDropdown";
 const { url } = process.env;
+import { AdminContext } from "../AdminContext";
+import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
 const states = [
-
-
     { label: "Andhra Pradesh", value: "Andhra Pradesh" },
     { label: "Arunachal Pradesh", value: "Arunachal Pradesh" },
     { label: "Assam", value: "Assam" },
@@ -55,6 +57,8 @@ const states = [
 ];
 
 const Form = () => {
+
+
     const width = Dimensions.get('window').width;
     const video = React.useRef(null);
     const [value, setValue] = useState();
@@ -62,23 +66,37 @@ const Form = () => {
     const [dialogVisible, setDialogVisible] = useState(false);
     const [videoData, setVideoData] = useState(null);
     const [Images, setImages] = useState(null);
-    const {Token } = useContext(AuthContext);
+    const { Token } = useContext(AuthContext);
+    const { AdminInfo } = useContext(AdminContext);
     const [eventData, setEventData] = useState({
+        id: "2",
+        eventType: AdminInfo.specialization,
         pricingDetails: {
+            id: 1,
             basePrice: "",
-            additionalServices: [{ serviceName: "", price: "" }],
+            additionalServices: [],
         },
         address: {
+            id: 1,
             country: "India",
             state: "",
             city: "",
             pinCode: "",
             landmark: "",
         },
+        admin: {
+            id: 1,
+            name: AdminInfo.firmName,
+            email: AdminInfo.email,
+        },
         images: [],
+        videoUrl: "",
     });
 
-
+    const [uploadStatus, setUploadStatus] = useState({
+        images: [],
+        video: false,
+    });
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -86,7 +104,6 @@ const Form = () => {
             alert('Sorry, we need camera roll permissions to make this work!');
             return;
         }
-
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             aspect: [4, 3],
@@ -116,14 +133,96 @@ const Form = () => {
         }
     };
 
-
-
-
-
-
     const handleAddEvent = () => {
         setDialogVisible(true);
     };
+
+    const handleUploadImage = async (index) => {
+        try {
+            console.log(Images[index].uri);
+            let headersList = {
+                "Accept": "*/*",
+                "Authorization": `Bearer ${Token}`,
+            };
+
+            let formdata = new FormData();
+            formdata.append("image", {
+                uri: Images[index].uri,
+                type: 'image/jpeg', // or the appropriate mime type
+                name: `image_${index}.jpg`, // or a meaningful name for the file
+            });
+
+            let response = await fetch(`${url}/admin/add-event/upload-image`, {
+                method: "POST",
+                body: formdata,
+                headers: headersList
+            });
+            if (response.status === 200) {
+
+                let data = await response.text();
+                setEventData((prev) => ({
+                    ...prev,
+                    images:
+                        [...prev.images,
+                        {
+                            id: index + 1,
+                            imgUrl: data
+                        }
+                        ]
+                }));
+                setUploadStatus((prev) => {
+                    const newStatus = [...prev.images];
+                    newStatus[index] = true;
+                    return { ...prev, images: newStatus };
+                });
+                
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            Toast.show({
+                type: "error",
+                text1: "Error uploading image",
+                position: "bottom",
+            });
+        }
+    }
+
+    const handleVideoUpload = async () => {
+        try {
+            let headersList = {
+                "Accept": "*/*",
+                "Authorization": `Bearer ${Token}`,
+            };
+
+            let formdata = new FormData();
+            formdata.append("video", {
+                uri: videoData.uri,
+                type: 'video/mp4', // or the appropriate mime type
+                name: `video.mp4`, // or a meaningful name for the file
+            });
+
+            let response = await fetch(`${url}/admin/add-event/upload-video`, {
+                method: "POST",
+                body: formdata,
+                headers: headersList
+            });
+            if (response.status === 200) {
+                let data = await response.text();
+                setEventData((prev) => ({
+                    ...prev,
+                    videoUrl: data,
+                }));
+                setUploadStatus((prev) => ({ ...prev, video: true }));
+            }
+        } catch (error) {
+            console.error("Error uploading video:", error);
+            Toast.show({
+                type: "error",
+                text1: "Error uploading video",
+                visibilityTime: 2000,
+            });
+        }
+    }
 
     const handleCloseDialog = () => {
         setDialogVisible(false);
@@ -140,7 +239,9 @@ const Form = () => {
 
 
     const handleAddService = (serviceName, price) => {
+        const index = eventData.pricingDetails.additionalServices.length;
         const newService = {
+            id: index + 1,
             serviceName: serviceName,
             price: price
         };
@@ -153,91 +254,92 @@ const Form = () => {
         }));
     };
 
+    const setState = (Item) => {
+        console.log(Item.value);
+        setEventData((prev) => ({
+            ...prev,
+            address: {
+                ...prev.address,
+                state: Item.value,
+            },
+        }));
+    }
     const handleSubmit = async () => {
-    // React Native does not have a default event parameter for non-web environments
-    const formData = new FormData();
-    // formData.append("event=application/json", eventData, { type: "application/json" });
-    // Images?.forEach((image) => formData.append("images", 
-    //     image.uri
-    // ));
+        try {
+            console.log("Checking event existence...");
     
-    // if (videoData) {
-    //     formData.append("video", 
-    //     videoData.uri
-    // );
-    // }
+            // Define headers for authorization
+            const headers = {
+                "Accept": "*/*",
+                "Authorization": `Bearer ${Token}`,
+            };
     
-        
- 
-    let headersList = {
-        Accept: "*/*",
-        Authorization:
-        `Bearer ${Token}`,
-    };
+            // Check if the event is already present
+            const checkResponse = await fetch(`${url}/admin/add-event/checkPresent`, {
+                method: "GET",
+                headers: headers,
+            });
     
-    let reqOptions1 = {
-        url: `${url}/admin/add-event/checkPresent`,
-        method: "GET",
-        headers: headersList,
-    };
+            const checkData = await checkResponse.text();
+            console.log(checkData);
     
-    let reqOptions2 = {
-        url: `${url}/admin/add-event`,
-        method: "POST",
-        headers: headersList,
-        data:formData
-    };
+            if (checkResponse.status === 200) {
+                console.log("Event does not exist. Proceeding to add event...");
     
+                // Convert eventData to JSON string
+                const eventPayload = JSON.stringify(eventData);
+                console.log(eventPayload);
     
-    try {
-
-
-        if (!Token) {
-            Toast.show({ type: 'error', text1: 'Authentication error', text2: 'No token found.' });
-            return;
-        }
-
-        const result = await axios.request(reqOptions1)
-        if (result.status === 507) {
-            Toast.show({ type: 'error', text1: 'Already Present!', text2: 'You are required to fill in only one event.' });
-            return;
-        }
-        
-        if (result.status === 200) {
-            // console.log(JSON.stringify(formData));
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(key, value);
-            // }                
-            const response = await axios.request(reqOptions2);
-          
-            console.log("Response Status:", response.status);
-                console.log("Response Data:", response.data);
-                Toast.show({ type: 'success', text1: 'Success', text2: 'You have successfully added a new event.' });
-                setEventData({
-                    pricingDetails: {
-                        basePrice: "",
-                        additionalServices: [{ serviceName: "", price: "" }],
+                // Upload the new event
+                const uploadResponse = await fetch(`${url}/admin/add-event/upload-event`, {
+                    method: "POST",
+                    body: eventPayload,
+                    headers: {
+                        ...headers,
+                        "Content-Type": "application/json"
                     },
-                    address: {
-                        country: "India",
-                        state: "",
-                        city: "",
-                        pinCode: "",
-                        landmark: "",
-                    },
-                    images: [],
                 });
-
-          
-             
+    
+                const uploadData = await uploadResponse.text();
+                console.log(uploadResponse.status);
+                console.log(uploadData);
+    
+                if (uploadResponse.status === 200) {
+                    Toast.show({
+                        type: "success",
+                        text1: "Event added successfully",
+                        visibilityTime: 1000,
+                        position: "bottom",
+                    });
+                } else {
+                    Toast.show({
+                        type: "error",
+                        text1: "Failed to add event",
+                        visibilityTime: 1000,
+                        position: "bottom",
+                    });
+                }
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: "Event already exists",
+                    visibilityTime: 1000,
+                });
             }
         } catch (error) {
-            Toast.show({ type: 'error', text1: 'Error', text2: 'An error occurred while adding the event.' });
+            console.error("Error adding event:", error);
+            Toast.show({
+                type: "error",
+                text1: "Error adding event",
+                visibilityTime: 1000,
+                position: "bottom",
+            });
         }
-};
-
+    };
+    
     return (
         <View style={styles.container}>
+            {/* <Toast style={{ elevation: 300, zIndex: 1000 }} /> */}
             <ScrollView style={{ width: "100%" }}>
                 <View style={styles.InputForm}>
                     <TextInput
@@ -254,35 +356,7 @@ const Form = () => {
                         }
                     />
                     <TextInput value="India" editable={false} style={styles.inputField} />
-                    <Dropdown
-                        style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        iconStyle={styles.iconStyle}
-                        data={states}
-                        search
-                        maxHeight={300}
-                        labelField="label"
-                        valueField="value"
-                        placeholder={!isFocus ? "Select State" : "..."}
-                        searchPlaceholder="Search..."
-                        value={value}
-                        onFocus={() => setIsFocus(true)}
-                        onBlur={() => setIsFocus(false)}
-                        onChange={(item) => {
-                            setValue(item.value);
-                            setIsFocus(false);
-                        }}
-                        renderLeftIcon={() => (
-                            <AntDesign
-                                style={styles.icon}
-                                color={isFocus ? "blue" : "black"}
-                                name="Safety"
-                                size={20}
-                            />
-                        )}
-                    />
+                    <CustomDropdown heading="Select State" Data={states} handleSelect={setState} />
                     <TextInput
                         placeholder="City"
                         style={styles.inputField}
@@ -326,75 +400,167 @@ const Form = () => {
 
                     <View style={styles.imgBtns}>
                         <Pressable title="Select Image" onPress={pickImage} style={styles.addMediaBtn} >
-                            <Text  style={styles.btnTxt}>Add Image</Text>
+                            <Text style={styles.btnTxt}>Add Image</Text>
                         </Pressable>
                     </View>
 
-                    {Images && Images.length > 0 && (
+                    {Images && Images.length > 0 &&
+                        Images.map((img, index) => (
+                            <View key={index} style={{ width: "60%", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                                <Image
+                                    source={{ uri: img.uri }}
+                                    style={styles.image}
+                                />
+                                <View style={{ flexDirection: 'row', gap: 10 }}>
+                                    {uploadStatus.images[index] && <AntDesign name="checkcircle" size={24} color="green" />}
+                                    <Pressable
+                                        title="Select Image"
+                                        onPress={e => handleUploadImage(index)}
+                                        style={{
+                                            borderRadius: 10,
+                                            elevation: 5,
+                                            width: 45,
+                                            height: 45,
+                                            backgroundColor: "#007BFF",
+                                            justifyContent: 'center',
+                                            alignItems: "center"
+                                        }}
+                                    >
+                                        <AntDesign name="clouduploado" size={24} color="white" />
+                                    </Pressable>
+                                    <Pressable
+                                        title="Select Image"
+                                        onPress={e => setImages((prev) => {
+                                            let temp = [...prev];
+                                            temp.splice(index, 1);
 
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                style={styles.selectedImages}
-                            >
-                                {Images.map((img, index) => (
-                                    <Image
-                                        source={{ uri: img.uri }}
-                                        key={index}
-                                        style={styles.image}
-                                    />
+                                        })
+                                        }
+                                        style={{
+                                            borderRadius: 10,
+                                            elevation: 5,
+                                            width: 45,
+                                            height: 45,
+                                            backgroundColor: "#007BFF",
+                                            justifyContent: 'center',
+                                            alignItems: "center"
+                                        }}
+                                    >
+                                        <MaterialIcons name="cancel" size={24} color="white" />
+                                    </Pressable>
+                                </View>
+                            </View>
+                        ))
+                    }
 
-                                    // <Text>{img.uri}</Text>
-                                ))}
-                            </ScrollView>
-                    )}
+
                     <View style={styles.imgBtns}>
                         <Pressable title="Select Image" onPress={pickVideo} style={styles.addMediaBtn}>
-                                <Text style={styles.btnTxt}>Add Video</Text>
+                            <Text style={styles.btnTxt}>Add Video</Text>
                         </Pressable>
                     </View>
 
                     {
                         videoData &&
 
-                      <>
-                         <Text style={styles.btnTxt} >Selected Video</Text>
-                          <Video
-                            ref={video}
-                            style={styles.video}
-                            source={{
-                                uri: videoData.uri,
-                            }}
-                            useNativeControls={false}
-                            resizeMode={ResizeMode.CONTAIN}
-                            isLooping
-                            onLoad={handleVideoLoaded}
-                         />
-                      </>
-                      
+                        <>
+                            <Text style={styles.btnTxt} >Selected Video</Text>
+                            <Video
+                                ref={video}
+                                style={styles.video}
+                                source={{
+                                    uri: videoData.uri,
+                                }}
+                                useNativeControls={false}
+                                resizeMode={ResizeMode.COVER}
+                                isLooping
+                                onLoad={handleVideoLoaded}
+                            />
 
+                            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                                {uploadStatus.video && <AntDesign name="checkcircle" size={24} color="green" />}
+                                <Pressable
+                                    title="Select Image"
+                                    onPress={handleVideoUpload}
+                                    style={{
+                                        borderRadius: 10,
+                                        elevation: 5,
+                                        width: 45,
+                                        height: 45,
+                                        backgroundColor: "#007BFF",
+                                        justifyContent: 'center',
+                                        alignItems: "center"
+                                    }}
+                                >
+                                    <AntDesign name="clouduploado" size={24} color="white" />
+                                </Pressable>
+                                <Pressable
+                                    onPress={e => setVideoData(null)}
+                                    style={{
+                                        borderRadius: 10,
+                                        elevation: 5,
+                                        width: 45,
+                                        height: 45,
+                                        backgroundColor: "#007BFF",
+                                        justifyContent: 'center',
+                                        alignItems: "center"
+                                    }}
+                                >
+                                    <MaterialIcons name="cancel" size={24} color="white" />
+                                </Pressable>
+                            </View>
+
+                        </>
                     }
 
-             
-                  
-
-                    {/* <Button title="Upload Image" onPress={uploadImage} /> */}
                     <Text style={styles.additionalServicesText}>Additional Services</Text>
-                   
+                    <View style={styles.servicesContainer}>
                         {
+                            eventData?.pricingDetails?.additionalServices.length > 0 &&
                             eventData?.pricingDetails?.additionalServices.map((service, index) => (
-                                <View key={index} style={styles.row}>
-                                    <Text style={styles.cell}>{service.serviceName}</Text>
-                                    <Text style={styles.cell}>{service.price}</Text> 
+                                <View key={index} style={styles.serviceRow}>
+                                    <Text style={styles.serviceName}>{service.serviceName}</Text>
+                                    <View style={{ flexDirection: 'row', gap: 20, alignItems: 'center' }}>
+                                        <Text style={styles.servicePrice}>{service.price}</Text>
+                                        <Pressable
+                                            onPress={() => {
+                                                setEventData((prev) => {
+                                                    const updatedServices = [...prev.pricingDetails.additionalServices];
+                                                    updatedServices.splice(index, 1);
+                                                    return {
+                                                        ...prev,
+                                                        pricingDetails: {
+                                                            ...prev.pricingDetails,
+                                                            additionalServices: updatedServices,
+                                                        },
+                                                    };
+                                                });
+                                            }}
+
+                                            style={{
+                                                borderRadius: 10,
+                                                elevation: 5,
+                                                width: 35,
+                                                height: 35,
+                                                backgroundColor: "#007BFF",
+                                                justifyContent: 'center',
+                                                alignItems: "center"
+                                            }}
+                                        >
+                                            <MaterialIcons name="cancel" size={24} color="white" />
+                                        </Pressable>
+
+                                    </View>
                                 </View>
                             ))
                         }
-            
+                    </View>
 
                     <Pressable onPress={handleAddEvent} style={styles.addMediaBtn}>
                         <Text style={styles.btnTxt}>Add a service</Text>
                     </Pressable>
                     <AdditionalService visible={dialogVisible} onClose={handleCloseDialog} onSubmit={handleAddService} />
+
                     <Pressable style={styles.SubmitBtn} onPress={handleSubmit}>
                         <Text style={styles.SubmitBtnTxt}>Submit</Text>
                     </Pressable>
@@ -408,15 +574,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: "auto",
-        alignItems: "center",
-        backgroundColor: "#EEFDFF",
-        justifyContent: "center",
+
     },
     dropdown: {
-        width: 340, 
+        width: 340,
         height: 60,
         borderWidth: 1,
-        borderColor:"#007BFF", 
+        borderColor: "#007BFF",
         paddingHorizontal: 20,
 
     },
@@ -447,17 +611,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     inputField: {
-        width: 340, 
+        width: "80%",
         height: 60,
         borderWidth: 1,
-        borderColor:"#007BFF", 
+        borderColor: "#007BFF",
         borderRadius: 6,
         paddingHorizontal: 20,
     },
     InputForm: {
         gap: 20,
         alignItems: "center",
-        marginVertical:50,
+        marginVertical: 50,
+        justifyContent: "center",
     },
     additionalServicesText: {
         fontSize: 20,
@@ -473,32 +638,54 @@ const styles = StyleSheet.create({
     },
     SubmitBtnTxt: {
         fontSize: 18,
-        color:"white",
-        fontWeight:"700",
+        color: "white",
+        fontWeight: "700",
     },
     imgBtns: {
         gap: 10,
         flexDirection: 'row',
     },
     image: {
-        width: 200,
-        height: 200,
-      },
-      selectedImages:{
-       marginHorizontal:10,
-      },
-      video: {
-        height: 350,
-        width: "90%",
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
+        width: 100,
+        height: 75,
+
     },
-    addMediaBtn:{
+    selectedImages: {
+
+    },
+    video: {
+        height: 240,
+        width: "90%",
+        borderRadius: 12,
+    },
+    servicesContainer: {
+        marginVertical: 20,
+        paddingHorizontal: 20,
+    },
+    serviceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        width: "80%"
+    },
+    serviceName: {
+        fontSize: 16,
+        color: '#333',
+        fontWeight: 'bold',
+    },
+    servicePrice: {
+        fontSize: 16,
+        color: '#007BFF',
+    },
+    addMediaBtn: {
         backgroundColor: "white",
         shadowColor: "#000",
         shadowOffset: {
-          width: 0,
-          height: 2,
+            width: 0,
+            height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
@@ -509,20 +696,10 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    btnTxt:{
+    btnTxt: {
         color: "black",
         fontWeight: "600",
     },
-      row: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingHorizontal: 10,
-        width: 350,
-      },
-      cell: {
-        fontSize: 16,
-        color: "#333",
-      },
 });
 
 export default Form;

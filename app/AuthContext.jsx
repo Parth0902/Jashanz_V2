@@ -16,13 +16,13 @@ export const useAuth = () => {
 export const AuthContextProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentAdmin, setCurrentAdmin] = useState(null);
-  const [IsAdmin, setIsAdmin] = useState(false);
+  const [IsAdmin, setIsAdmin] = useState(null);
   const [Token, setToken] = useState(null);
   const [userRegisterPayload, setUserRegisterPayload] = useState(null);
 
   const UserRegister = async (payload, input) => {
     try {
-      console.log("UserRegister", payload, input)
+      // console.log("UserRegister", payload, input)
       const ack = await axios.post(
         `${url}/api/customers/register/${input}`,
           payload
@@ -35,7 +35,7 @@ export const AuthContextProvider = ({ children }) => {
 
 
   const userOtp = async (payload) => {
-    console.log("userOtp", payload);
+    // console.log("userOtp", payload);
     try {
       let headersList = {
         "Accept": "*/*",
@@ -60,7 +60,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const UserLogin = async (payload) => {
     try {
-      console.log(url);
+      // console.log(url);
       const ack = await axios.post(`${url}/api/customers/login`, payload);
       // Additional check to ensure ack and ack.data are defined
       if (ack && ack.data) {
@@ -94,7 +94,7 @@ export const AuthContextProvider = ({ children }) => {
   const logout = async () => {
     // console.log("logout Pressed");
     setToken(null);
-    setIsAdmin(false);
+    setIsAdmin(null);
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     await SecureStore.deleteItemAsync(User);
     axios.defaults.headers.common["Authorization"] = "";

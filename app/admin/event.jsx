@@ -57,7 +57,6 @@ const Event = () => {
                 console.log(adminId);
                 if(adminId!==null){
                     const res2 = await axios.request(reqOptions2);
-                    console.log(res2.data);
                     if (res2.status === 200) {
                         setEveData(res2.data[0]);
                         filterData(res2.data[0]);

@@ -1,36 +1,37 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import {
   Dimensions,
   Text,
   View,
   StyleSheet,
-  Image,
-  Button,
   ScrollView,
   Pressable,
+  TouchableOpacity,
+  Image
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
-import { Dropdown } from "react-native-element-dropdown";
+import AntDesign from '@expo/vector-icons/AntDesign';
 import RazorpayCheckout from "react-native-razorpay";
 import { EventContext } from "../EventContext";
-import Carousel from "react-native-reanimated-carousel";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import Carousel from "../../Components/carousel";
+import CustomDropdown from "../../Components/CustomDropdown";
 
 const Event = () => {
   const width = Dimensions.get("window").width;
-  const video = React.useRef(null);
-  const [status, setStatus] = React.useState({});
+  const video = useRef(null);
+  const [status, setStatus] = useState({});
   const { eventDataContext } = useContext(EventContext);
   const [eventData, setEveData] = useState(eventDataContext);
   const [value, setValue] = useState();
-  const [isFocus, setIsFocus] = useState(false);
+  // const [isFocus, setIsFocus] = useState(false);
   const [additionalServices, setAdditionalServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [totalPrice, setTotalPrice] = useState(
     parseInt(eventData.pricingDetails.basePrice)
   );
   const [GST, setGST] = useState(totalPrice * 0.18);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   const handleVideoLoaded = () => {
     const play = async () => {
@@ -40,6 +41,17 @@ const Event = () => {
     };
     play().catch((error) => console.log("Error playing video:", error));
   };
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      video.current.pauseAsync();
+    } else {
+      video.current.playAsync();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+
 
   useEffect(() => {
     const UpdateGst = (totalPrice) => {
@@ -68,8 +80,14 @@ const Event = () => {
     // Return loading state or placeholder
     return <Text>Loading...</Text>;
   }
+
   const onPaymentIdGenerated = (paymentId) => {
     console.log("paymentId", paymentId);
+  };
+
+  const handleSelect = (item) => {
+    setSelectedServices((prev) => [...prev, item]);
+    setTotalPrice(totalPrice + parseInt(item.value));
   };
 
   const HandlePayment = async () => {
@@ -103,42 +121,38 @@ const Event = () => {
     }
   };
 
-  // RazorpayCheckout(options)
-  //     .then((data) => {
-  //         console.log("data from data", data);
-
-  //         let bodyData = {
-  //             razorpay_payment_id: data.razorpay_payment_id,
-  //             razorpay_order_id: "order_NstL4c3Nb29pjx",
-  //             razorpay_signature: data.razorpay_signature,
-  //         };
-  //         dispatch(razorPayment(bodyData));
-  //         alert(`Success: ${data.razorpay_payment_id}`);
-  //     }).catch((error) => {
-  //         // handle failure
-  //         alert(`Error: ${error.code} | ${error.description}`);
-  //         console.log(error);
-  // });
   return (
     <View style={styles.container}>
       <Text style={styles.eventName}>{eventData.eventType}</Text>
-      
       <ScrollView style={{ width: "100%" }}>
+  
         <View style={styles.container2}>
           <View style={styles.container3}>
-            <Video
-              ref={video}
-              style={styles.video}
-              source={{
-                uri: `${eventData.videoUrl}`,
-              }}
-              useNativeControls={true}
-              resizeMode={ResizeMode.COVER}
-              isLooping
-              onLoad={handleVideoLoaded}
-            />
-
-   
+            <View style={styles.videoContainer}>
+              <Video
+                ref={video}
+                style={styles.video}
+                source={{
+                  uri: `${eventData.videoUrl}`,
+                }}
+                useNativeControls={true}
+                resizeMode={ResizeMode.COVER}
+                isLooping
+                onLoad={handleVideoLoaded}
+              />
+              <TouchableOpacity style={styles.overlay} onPress={handlePlayPause}>
+                <MaterialIcons
+                  name={isPlaying ? "pause" : "play-arrow"}
+                  size={60}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.CarouselContainer}>
+              <Carousel images={eventData?.images} />
+             </View>
+        
             <View style={styles.textBox}>
               <View style={styles.box}>
                 <Text style={styles.boxTextHeading}>
@@ -180,43 +194,12 @@ const Event = () => {
               </View>
             </View>
 
+            
+            <CustomDropdown heading="Select Additional Services" Data={additionalServices} handleSelect={handleSelect} />
             <View style={styles.additionalServices}>
               <Text style={styles.additionalServicesText}>
-                Select Addtional Services
+                Select Additional Services
               </Text>
-
-              
-
-              {/* <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={additionalServices}
-                search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? "Select item" : "..."}
-                searchPlaceholder="Search..."
-                value={value}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={(item) => {
-                  setSelectedServices((prev) => [...prev, item]);
-                  setIsFocus(false);
-                  setTotalPrice(totalPrice + parseInt(item.value));
-                }}
-                renderLeftIcon={() => (
-                  <AntDesign
-                    style={styles.icon}
-                    color={isFocus ? "blue" : "black"}
-                    name="Safety"
-                    size={20}
-                  />
-                )}
-              /> */}
 
               <View style={styles.table}>
                 <View style={styles.row}>
@@ -245,58 +228,46 @@ const Event = () => {
                     borderTopColor: "black",
                   }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: 600 }}>
+                  <Text style={{ fontSize: 16, fontWeight: "600" }}>
                     GST (18%):
                   </Text>
                   <Text style={styles.cell}>{GST}</Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={{ fontSize: 16, fontWeight: 600 }}>Total:</Text>
+                  <Text style={{ fontSize: 16, fontWeight: "600" }}>Total:</Text>
                   <Text style={styles.cell}>{totalPrice + GST}</Text>
                 </View>
               </View>
             </View>
 
             <Pressable style={styles.SubmitBtn} onPress={HandlePayment}>
-              
-                    <Text style={styles.SubmitBtnTxt} >
-                        Place Order
-                    </Text>
+              <Text style={styles.SubmitBtnTxt}>Place Order</Text>
 
-                    <View style={{gap:7}}>
-                        <Text style={styles.SubmitBtnTxt2} >
-                           <FontAwesome name="rupee" size={12} color="white" />
-                           {totalPrice + GST}
-                        </Text>
+              <View style={{ gap: 7 }}>
+                <Text style={styles.SubmitBtnTxt2}>
+                  <FontAwesome name="rupee" size={12} color="white" />
+                  {totalPrice + GST}
+                </Text>
 
-                        <Text style={styles.SubmitBtnTxt2} >
-                          Total 
-                        </Text>
-                    </View>
-                 
-         
-
+                <Text style={styles.SubmitBtnTxt2}>Total</Text>
+              </View>
             </Pressable>
           </View>
         </View>
       </ScrollView>
-      {/* <View style={styles.bottomContainer}>
-                <Text>Price</Text>
-                <Pressable>Book Now</Pressable>
-            </View> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  SubmitBtnTxt2:{
+  SubmitBtnTxt2: {
     fontSize: 16,
     fontWeight: "400",
     color: "white",
   },
   eventName: {
     fontSize: 28,
-    fontFamily: "Popins",
+    // fontFamily: "Poppins",
     textAlign: "center",
     paddingVertical: 20,
     color: "#0274FF",
@@ -315,18 +286,29 @@ const styles = StyleSheet.create({
   container3: {
     marginTop: 30,
     backgroundColor: "white",
-    width: "91%",
+    width: "90%",
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     gap: 30,
   },
-  video: {
+  videoContainer: {
+    position: 'relative',
+    width: '100%',
     height: 220,
-    width: "100%",
+  },
+  video: {
+    height: '100%',
+    width: '100%',
     borderRadius: 12,
     backgroundColor: "blue",
+  },
+  overlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -30 }, { translateY: -30 }],
   },
   textBox: {
     width: "100%",
@@ -335,8 +317,8 @@ const styles = StyleSheet.create({
   box: {
     gap: 10,
     backgroundColor: "white",
-    paddingVertical:10,
-    borderRadius:12,
+    paddingVertical: 10,
+    borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -347,17 +329,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   boxTextHeading: {
-    fontFamily: "Popins",
+    // fontFamily: "Poppins",
     fontSize: 20,
     paddingLeft: 20,
     backgroundColor: "white",
     borderRadius: 12,
     paddingVertical: 10,
-    
   },
   boxSubheading: {
     fontFamily: "Roboto",
-    color:'gray',
+    color: 'gray',
     fontSize: 18,
     paddingHorizontal: 5,
   },
@@ -369,18 +350,17 @@ const styles = StyleSheet.create({
   },
   additionalServicesText: {
     fontSize: 20,
-    fontFamily: "Popins",
- 
+    // fontFamily: "Poppins",
   },
   SubmitBtn: {
     backgroundColor: "#4E9BD1",
     borderRadius: 8,
     width: 250,
     height: 60,
-    flexDirection:'row' ,
-    justifyContent:'space-between',
-    paddingHorizontal:10,
-    alignItems:'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    alignItems: 'center',
   },
   SubmitBtnTxt: {
     color: "white",
@@ -428,42 +408,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 10,
   },
-  dropdown: {
-    // backgroundColor:'red',
-    height: 50,
-    borderRadius: 8,
-    width: 270,
-    paddingHorizontal: 20,
-    borderWidth: 0.5,
-    borderColor: "blue",
-    height: 50,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  label: {
-    position: "absolute",
-    backgroundColor: "white",
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
+  CarouselContainer:{
+    width: "100%",
+  }
 });
 
 export default Event;

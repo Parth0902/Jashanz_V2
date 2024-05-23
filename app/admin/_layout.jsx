@@ -13,7 +13,7 @@ export default function Layout() {
   // Define a custom header component
 
   const [isLogout, setIsLogout] = useState(false);
-  const { Token, logout, currentAdmin } = useContext(AuthContext);
+  const { Token, logout, currentAdmin,IsAdmin } = useContext(AuthContext);
   const {
     setAdminId,
     adminId,
@@ -21,6 +21,7 @@ export default function Layout() {
     setAllRequests,
     countR,
     setCountR,
+    setAdminInfo
   } = useContext(AdminContext);
 
   const handleLogout = () => {
@@ -35,15 +36,20 @@ export default function Layout() {
         Accept: "*/*",
         Authorization: `Bearer ${Token}`,
       };
-
+      console.log(currentAdmin);
       let reqOptions1 = {
         url: `${url}/admin/add-event/findadminbyemail/${currentAdmin}`,
         method: "GET",
         headers: headersList,
       };
-      const res = await axios.request(reqOptions1);
-      if (res.status === 200) {
-        setAdminId(res.data.id);
+      if(IsAdmin){
+        const res = await axios.request(reqOptions1);
+        
+        if (res.status === 200) {
+          setAdminId(res.data.id);
+          setAdminInfo(res.data);
+          console.log(res.data);
+        }
       }
     };
     if(currentAdmin){
@@ -59,13 +65,14 @@ export default function Layout() {
       };
 
       let reqOptions = {
-        url: `http://backend.jashanz.com/bookings/receiverequest/${adminId}`,
+        url: `${url}/bookings/receiverequest/${adminId}`,
         method: "GET",
         headers: headersList,
       };
 
       if (adminId) {
         let response = await axios.request(reqOptions);
+        
         if (response.status === 200) {
           const PendingReqs = response?.data.filter(
             (request) => request.bookingStatus === "PENDING"

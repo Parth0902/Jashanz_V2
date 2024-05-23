@@ -9,7 +9,7 @@ export const EventContext = createContext();
 export const EventProvider = ({ children }) => {
   const [eventDataContext, setEventDataContext] = useState(null);
   const [currentUser,setCurrentUser] = useState(null);
-  const { Token } = useContext(AuthContext);
+  const { Token,IsAdmin } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchUser=async()=>{
@@ -19,12 +19,12 @@ export const EventProvider = ({ children }) => {
      }
      
      let reqOptions = {
-       url: "https://backend.jashanz.com/customer/current-user",
+       url: `${url}/customer/current-user`,
        method: "GET",
        headers: headersList,
      }
      
-     if(Token){
+     if(Token && IsAdmin===false){
        let response = await axios.request(reqOptions);
        if(response.status === 200){
           setCurrentUser(response.data);

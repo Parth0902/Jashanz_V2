@@ -1,5 +1,5 @@
 // EventContext.js
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useContext } from "react";
 // import { AuthContext } from "./AuthContext";
 // const {url}=process.env;
 // import axios from "axios";
@@ -7,10 +7,11 @@ export const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const [adminId, setAdminId] = useState(null);
+  const [AdminInfo, setAdminInfo] = useState(null);
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
   const [countR, setCountR] = useState(0);
-  // const { Token,currentAdmin } = useContext(AuthContext);
+  
  
   return (
     <AdminContext.Provider
@@ -23,6 +24,8 @@ export const AdminProvider = ({ children }) => {
         setRequests,
         countR,
         setCountR,
+        AdminInfo,
+        setAdminInfo
       }}
     >
       {children}

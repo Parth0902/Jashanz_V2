@@ -69,6 +69,8 @@ const Index = () => {
           headers: headersList,
         };
         let response = await axios.request(reqOptions);
+        // console.log(response.status);
+
         if(response.status === 401){
           logout();
         }

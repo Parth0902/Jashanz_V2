@@ -30,10 +30,12 @@ const Index = () => {
                     method: "GET",
                     headers: headersList,
                 }
-
-                let response = await axios.request(reqOptions);
-                // console.log(response);
-                setAdminData(response.data);
+                if(currentAdmin){
+                    let response = await axios.request(reqOptions);
+                    console.log("admin Index :",response.status);
+                    // console.log(response.data);
+                    setAdminData(response.data); 
+                }
             } catch (err) {
                 console.log(err);
             }

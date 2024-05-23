@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { AuthContext } from '../app/AuthContext';
-const Signup = () => {
+const Signup = ({ setCurrentScreen }) => {
   const { userOtp } = useContext(AuthContext);
   const [payload, setPayload] = useState({
     name: '',
@@ -14,6 +14,10 @@ const Signup = () => {
   });
 
   const navigation = useNavigation();
+
+  const handlePress = () => {
+    setCurrentScreen(true);
+  }
 
   const [error, setError] = useState({
     nameError: false,
@@ -145,7 +149,14 @@ const Signup = () => {
           )}
         </View>
 
+
         <View style={styles.loginBottom}>
+          <Text style={styles.text}>
+            Already Have an Account ?{" "}
+            <Text style={styles.linkText1} onPress={handlePress}>
+              Login Here
+            </Text>
+          </Text>
           <Pressable style={styles.btn} onPress={handleSubmit1}>
             <Text style={styles.btn_text}>Submit</Text>
           </Pressable>
@@ -201,6 +212,15 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     letterSpacing: 1,
   },
+  text: {
+    fontSize:15,
+    fontFamily:'Monster',
+},
+linkText1: {
+    fontSize: 16,
+    color: "#007BFF",
+    fontWeight:"600",
+},
 });
 
 export default Signup;
