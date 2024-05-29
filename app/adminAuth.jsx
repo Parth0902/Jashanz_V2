@@ -5,12 +5,14 @@ import Alert from '../Components/alertComponent';
 import { AuthContext } from "./AuthContext";
 import AdminSignup from "../Components/AdminSignup";
 import { useNavigation } from '@react-navigation/native';
-import Toast from "react-native-toast-message";
+import { useToast } from "./ToastContext";
 
 export default function AdminAuth() {
     const navigation = useNavigation();
     const { AdminLogin } = useContext(AuthContext);
     const [currentScreen, setCurrentScreen] = useState(true);
+    const [isPressed, setIsPressed] = useState(false);
+    const { showSuccess, showError, showWarn } = useToast();
     const [payload, setPayload] = useState({
         emailormobile: "",
         password: ""
@@ -20,30 +22,23 @@ export default function AdminAuth() {
     const handlePress = () => {
         setCurrentScreen(false);
     }
-    const DisplayAlert = () => {
-        setShowAlert(true);
-        setTimeout(() => {
-            setShowAlert(false);
-        }, 3000);
-    }
+   
 
     const handleErrorResponse = (response) => {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: response?.msg,
-        visibilityTime: 3000,
-        autoHide: true,
-      });
+        let errorMessage = "Invalid username or password";
+        if (response && response.error && response.msg) {
+            errorMessage = response.msg;
+        }
+        showError(errorMessage);
     };
 
     const handleSubmit = async () => {
         try {
             const ack = await AdminLogin(payload);
-            // console.log(ack);
             if (ack.status === 200) {
                 navigation.navigate('index');
-            } else {
+            }
+             else {
                 handleErrorResponse(ack);
             }
         } catch (err) {
@@ -57,7 +52,6 @@ export default function AdminAuth() {
             {
                 currentScreen &&
                 <>
-
                     <Image source={require('../assets/admin_login.png')} style={styles.LoginGraphic}/>
                     {/* <Image
                         source={require("../assets/jashanzLogo.png")}
@@ -83,7 +77,11 @@ export default function AdminAuth() {
                                 <Text style={styles.linkText} onPress={handlePress}>Register Here</Text>
 
                             </Text>
-                            <Pressable style={styles.btn} onPress={handleSubmit}>
+                            <Pressable
+                              style={[styles.btn, isPressed && styles.btnPressed]}
+                              onPressIn={() => setIsPressed(true)}
+                              onPressOut={() => setIsPressed(false)} 
+                            onPress={handleSubmit}>
                                 <Text style={styles.btn_text} >Submit</Text>
                             </Pressable>
                         </View>
@@ -143,6 +141,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         height: 60,
     },
+    btnPressed: {
+        backgroundColor: '#0056b3', // Darker blue color
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5,
+      },
     btn_text:{
         fontSize: 18,
         color:"white",

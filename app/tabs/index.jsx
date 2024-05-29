@@ -123,6 +123,7 @@ const Index = () => {
           marginBottom: 20, // Adjust gap between rows
           gap: 10,
         }}
+        showsVerticalScrollIndicator={false}
         numColumns={2}
         renderItem={({ item }) => (
           <EventCard event={item} />
@@ -171,6 +172,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     alignSelf: 'center',
     paddingHorizontal: 10,
+    borderWidth: 1,borderColor:"#007BFF"
   },
   searchIcon: {
     marginRight: 10,
@@ -178,6 +180,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     height: 60,
+    
   },
 });
 

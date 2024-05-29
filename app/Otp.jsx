@@ -1,21 +1,24 @@
 import React, { useState, useRef,useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert,Pressable } from 'react-native';
 import { AuthContext } from './AuthContext';
-import Toast from 'react-native-toast-message';
+import { useToast } from './ToastContext';
+import { useNavigation } from 'expo-router';
 
 const OtpInput = () => {
   const [otp, setOtp] = useState(['', '', '', '', '','']);
   const inputRefs = useRef([]);
   const { userOtp,userRegisterPayload,user,UserRegister} = useContext(AuthContext);
-
+  const { showSuccess, showError, showWarn } = useToast();
+  const navigation = useNavigation();
   const handleResendOtp = async () => {
     try { 
       const ack = await userOtp(userRegisterPayload);
       if (ack.status === 200) {
-        console.log('Otp sent successfully');
+        showSuccess('OTP sent successfully');
       }
     } catch (err) {
       console.error('Error sending OTP:', err);
+      showError('Error sending OTP');
     }
   };
 
@@ -46,24 +49,21 @@ const OtpInput = () => {
   const handleSubmit = async() => {
     const otpValue = otp.join('');
     if (otpValue.length === 6) {
-      console.log('OTP entered is:', otpValue);
+    
       const ack= await UserRegister(userRegisterPayload,otpValue);
-      console.log(ack);
       if(ack.status===200){
-        console.log("User registered successfully");
-        Toast.show({
-          type: 'success',
-          text1: 'User registered successfully',
-        });
+        showSuccess('User registered successfully');
+          setTimeout(() => {
+            // Redirect to login page
+            // You can use the navigation library of your choice to navigate to the login page
+            navigation.navigate('index');
+          }, 3000);
       }
       if(ack.status===403){
-        Toast.show({
-          type: 'error',
-          text1: 'Incorrect OTP',
-        });
+        showError('User already registered');
       }
     } else {
-      Alert.alert('Invalid OTP', 'Please enter a valid 4-digit OTP');
+        showWarn('Please enter a valid OTP');
     }
   };
 

@@ -8,12 +8,14 @@ import {
   ScrollView,
   Pressable,
   TouchableOpacity,
-  Image
+  Image,
+  Button
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import RazorpayCheckout from "react-native-razorpay";
 import { EventContext } from "../EventContext";
+import {  useToast} from "../ToastContext";
 import Carousel from "../../Components/carousel";
 import CustomDropdown from "../../Components/CustomDropdown";
 
@@ -22,6 +24,7 @@ const Event = () => {
   const video = useRef(null);
   const [status, setStatus] = useState({});
   const { eventDataContext } = useContext(EventContext);
+  const { showSuccess, showError, showWarn } = useToast();
   const [eventData, setEveData] = useState(eventDataContext);
   const [value, setValue] = useState();
   // const [isFocus, setIsFocus] = useState(false);
@@ -123,7 +126,8 @@ const Event = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.eventName}>{eventData.eventType}</Text>
+  
+      <Text style={styles.eventName}>{eventData?.admin?.firmName}</Text>
       <ScrollView style={{ width: "100%" }}>
   
         <View style={styles.container2}>
@@ -135,7 +139,7 @@ const Event = () => {
                 source={{
                   uri: `${eventData.videoUrl}`,
                 }}
-                useNativeControls={true}
+                useNativeControls={false}
                 resizeMode={ResizeMode.COVER}
                 isLooping
                 onLoad={handleVideoLoaded}

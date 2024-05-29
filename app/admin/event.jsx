@@ -1,19 +1,30 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { Dimensions, Text, View, StyleSheet, Image, Button, ScrollView, Pressable } from 'react-native';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import {
+    Dimensions,
+    Text,
+    View,
+    StyleSheet,
+    Image,
+    Button,
+    ScrollView,
+    Pressable,
+    TouchableOpacity
+} from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
-import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import axios from 'axios';
 import { AuthContext } from "../AuthContext";
 import { AdminContext } from '../AdminContext';
-import Toast from 'react-native-toast-message';
+import { useToast } from '../ToastContext';
 const { url } = process.env;
-import Carousel from 'react-native-reanimated-carousel';
+import Carousel from "../../Components/carousel";
+
 const Event = () => {
     const width = Dimensions.get('window').width;
     const { Token, currentAdmin } = useContext(AuthContext);
-    const { adminId} = useContext(AdminContext);
+    const { adminId } = useContext(AdminContext);
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
     const [eventData, setEveData] = useState(null);
@@ -21,7 +32,9 @@ const Event = () => {
     const [isFocus, setIsFocus] = useState(false);
     const [additionalServices, setAdditionalServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
-
+    const [isPlaying, setIsPlaying] = useState(true);
+    const { showSuccess, showError, showWarn } = useToast();
+    const [isPressed, setIsPressed] = useState(false);
     const handleVideoLoaded = () => {
         const play = async () => {
             if (video.current) {
@@ -31,48 +44,87 @@ const Event = () => {
         play().catch(error => console.log("Error playing video:", error));
     };
 
-    useEffect(() => {
-        let headersList = {
-            Accept: "*/*",
-            Authorization:
-                `Bearer ${Token}`,
-        };
+    const handlePlayPause = () => {
+        if (isPlaying) {
+            video.current.pauseAsync();
+        } else {
+            video.current.playAsync();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+    const handleDelete = async () => {
+        try {
+            let headersList = {
+                Accept: "*/*",
+                Authorization:
+                    `Bearer ${Token}`,
+            };
 
 
-        let reqOptions2 = {
-            url: `${url}/admin/add-event/getevent/${adminId}`,
-            method: "GET",
-            headers: headersList,
-        };
+            let response = await fetch(`${url}/admin/add-event/delete/${eventData?.id}`, {
+                method: "DELETE",
+                headers: headersList
+            });
 
-        const filterData = (event) => {
-            event.pricingDetails.additionalServices.forEach(priceData => {
-                let t = { label: `${priceData.serviceName} = ${priceData.price}`, value: priceData.price };
-                setAdditionalServices(prev => ([...prev, t]));
-            })
+            let data = await response.text();
+            if (response.status === 200) {
+                showSuccess("Event deleted successfully");
+                setEveData(null);
+            }
+            else {
+                showError(data);
+            }
+        } catch (err) {
+            showError("Error deleting event");
         }
 
+
+    };
+
+    useEffect(() => {
         const fetchEvent = async () => {
+            const headersList = {
+                Accept: "*/*",
+                Authorization: `Bearer ${Token}`,
+            };
+
+            const reqOptions2 = {
+                method: "GET",
+                headers: headersList,
+            };
+
+            const filterData = (event) => {
+                setAdditionalServices([]);
+                event.pricingDetails.additionalServices.forEach(priceData => {
+                    let t = { label: `${priceData.serviceName} = ${priceData.price}`, value: priceData.price };
+                    setAdditionalServices(prev => ([...prev, t]));
+                });
+            };
+
             try {
-                console.log(adminId);
-                if(adminId!==null){
-                    const res2 = await axios.request(reqOptions2);
-                    if (res2.status === 200) {
-                        setEveData(res2.data[0]);
-                        filterData(res2.data[0]);
+                if (adminId !== null) {
+                    console.log(adminId);
+                    const res = await fetch(`${url}/admin/add-event/getevent/${adminId}`, reqOptions2);
+
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        console.log(data[0]);
+                        setEveData(data[0]);
+                        filterData(data[0]);
+                        console.log(data[0].pricingDetails.additionalServices);
+                    } else if (res.status === 404) {
+                        showWarn("No event added yet");
                     }
                 }
-
             } catch (err) {
-                Toast.show({ type: 'error', text1: 'error', text2: err });
+                showError("Error fetching event data:", err);
             }
-
-        }
+        };
 
         fetchEvent();
 
-
-    }, []);
+    }, [adminId]);
 
     if (!eventData) {
         // Return loading state or placeholder
@@ -81,49 +133,34 @@ const Event = () => {
 
     return (
         <View style={styles.container}>
-
             <Text style={styles.eventName}>{eventData.eventType}</Text>
             <ScrollView style={{ width: "100%" }}>
                 <View style={styles.container2}>
                     <View style={styles.container3}>
-                        <Video
-                            ref={video}
-                            style={styles.video}
-                            source={{
-                                uri: `${eventData.videoUrl}`,
-                            }}
-                            useNativeControls={true}
-                            resizeMode={ResizeMode.COVER}
-                            isLooping
-                            onLoad={handleVideoLoaded}
-                        />
-
-                        <View style={styles.Images}>
-                            {/* <Carousel
-                                loop
-                                width={(width * 9) / 10}
-                                height={220}
-                                autoPlay={true}
-                                data={[...eventData?.images?.keys()]}
-                                scrollAnimationDuration={1000}
-                                renderItem={({ index }) => (
-                                    <View>
-                                        <Image
-                                            source={{
-                                                uri: `${eventData.images[index].imgUrl}`,
-                                            }}
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                objectFit: "cover",
-                                                borderRadius: 15,
-                                            }}
-                                        />
-                                    </View>
-                                )}
-                            /> */}
+                        <View style={styles.videoContainer}>
+                            <Video
+                                ref={video}
+                                style={styles.video}
+                                source={{
+                                    uri: `${eventData.videoUrl}`,
+                                }}
+                                useNativeControls={false}
+                                resizeMode={ResizeMode.COVER}
+                                isLooping
+                                onLoad={handleVideoLoaded}
+                            />
+                            <TouchableOpacity style={styles.overlay} onPress={handlePlayPause}>
+                                <MaterialIcons
+                                    name={isPlaying ? "pause" : "play-arrow"}
+                                    size={60}
+                                    color="white"
+                                />
+                            </TouchableOpacity>
                         </View>
 
+                        <View style={styles.CarouselContainer}>
+                            <Carousel images={eventData?.images} />
+                        </View>
                         <View style={styles.textBox}>
                             <View style={styles.box}>
                                 <Text style={styles.boxTextHeading}>
@@ -186,9 +223,16 @@ const Event = () => {
                             </View>
 
 
-                            </View>
                         </View>
                     </View>
+                    <Pressable
+                        style={[styles.SubmitBtn, isPressed && styles.btnPressed]}
+                        onPressIn={() => setIsPressed(true)}
+                        onPressOut={() => setIsPressed(false)}
+                        onPress={handleDelete}>
+                        <Text style={styles.SubmitBtnTxt}>Delete Event</Text>
+                    </Pressable>
+                </View>
             </ScrollView>
 
         </View>
@@ -224,11 +268,25 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 30,
     },
-    video: {
+    videoContainer: {
+        position: 'relative',
+        width: '100%',
         height: 220,
-        width: "100%",
+    },
+    video: {
+        height: '100%',
+        width: '100%',
         borderRadius: 12,
         backgroundColor: "blue",
+    },
+    overlay: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -30 }, { translateY: -30 }],
+    },
+    CarouselContainer: {
+        width: "100%",
     },
     textBox: {
         width: "100%",
@@ -268,7 +326,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
-        paddingBottom:10,
+        paddingBottom: 10,
     },
     additionalServicesText: {
         fontSize: 20,
@@ -284,29 +342,38 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         shadowColor: "#000",
         shadowOffset: {
-          width: 0,
-          height: 2,
+            width: 0,
+            height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-      },
-      row: {
+    },
+    row: {
         flexDirection: "row",
         justifyContent: "space-between",
         padding: 10,
         width: 350,
-      },
-      cell: {
+    },
+    cell: {
         fontSize: 16,
         color: "#333",
-      },
+    },
     SubmitBtn: {
-        backgroundColor: 'blue',
+        backgroundColor: 'red',
         padding: 10,
-        width: 100,
+        width: 150,
+        height:12,
+        borderRadius:12,
         justifyContent: 'center',
         alignItems: 'center'
+    }, btnPressed: {
+        backgroundColor: '#8B0000',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5,
     },
     SubmitBtnTxt: {
         color: 'white',

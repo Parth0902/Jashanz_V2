@@ -6,11 +6,14 @@ import { FontAwesome5,AntDesign } from '@expo/vector-icons';
 import { EventProvider } from "./EventContext";
 import { AdminProvider } from "./AdminContext";
 import { AuthContext } from "./AuthContext";
-import { useContext } from "react";
+import { useContext,useState } from "react";
 import { useNavigation } from "expo-router";
+import { ToastProvider } from './ToastContext';
+import LinkModel from "../Components/LinkModel";
 
 const Profile = () => {
   const { logout,Token } = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const handleLogout = () => {
     logout();
@@ -21,11 +24,23 @@ const Profile = () => {
   }
   return (
     <SafeAreaView style={styles.profileBox}>
+      <LinkModel 
+        visible={modalVisible} 
+        onClose={() => setModalVisible(false)} 
+        navigation={navigation} 
+      />
       <View style={styles.profileContainer}>
-        <Image source={require('../assets/JashanzLogo.jpeg')} style={styles.headerLogo} />
+        <Image source={require('../assets/JL.png')} style={styles.headerLogo} />
+        <View style={{gap:20,flexDirection:'row'}}>
+          <AntDesign
+           name="infocirlceo"
+           size={26}
+           color="black"
+           onPress={() => setModalVisible(true)}
+          />
         {
           Token &&
-          <View style={{gap:20,flexDirection:'row'}}>
+          <>
             <AntDesign
               name="book"
               size={26}
@@ -39,8 +54,9 @@ const Profile = () => {
               color="black"
               onPress={handleLogout}
             />
-          </View>
-        }
+          </>
+          }
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -51,6 +67,7 @@ const Profile = () => {
 export default function RootLayout() {
   return (
     <AuthContextProvider>
+      <ToastProvider>
       <AdminProvider>
         <EventProvider>
           <Stack>
@@ -68,6 +85,7 @@ export default function RootLayout() {
           </Stack>
         </EventProvider>
       </AdminProvider>
+      </ToastProvider>
     </AuthContextProvider>
   );
 }

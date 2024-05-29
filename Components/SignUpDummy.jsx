@@ -2,8 +2,10 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { AuthContext } from '../app/AuthContext';
+
 const Signup = ({ setCurrentScreen }) => {
   const { userOtp } = useContext(AuthContext);
+  const [isPressed, setIsPressed] = useState(false);
   const [payload, setPayload] = useState({
     name: '',
     email: '',
@@ -28,6 +30,7 @@ const Signup = ({ setCurrentScreen }) => {
   });
 
   const handleSubmit1 = async () => {
+    console.log("hii");
     setError({
       nameError: false,
       mailError: false,
@@ -37,7 +40,9 @@ const Signup = ({ setCurrentScreen }) => {
     });
     try {
       if (validate() === false) {
+        console.log("allWell");
         const ack = await userOtp(payload);
+        console.log(ack.data);
         if (ack.status === 200) {
           console.log(ack);
           console.log('Otp sent successfully');
@@ -47,7 +52,8 @@ const Signup = ({ setCurrentScreen }) => {
         throw 'Invalid Input';
       }
     } catch (err) {
-      console.error('Error sending OTP:', err);
+      
+      console.log('Error sending OTP:', err);
     }
   };
 
@@ -157,7 +163,11 @@ const Signup = ({ setCurrentScreen }) => {
               Login Here
             </Text>
           </Text>
-          <Pressable style={styles.btn} onPress={handleSubmit1}>
+          <Pressable
+            style={[styles.btn, isPressed && styles.btnPressed]}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
+           onPress={handleSubmit1}>
             <Text style={styles.btn_text}>Submit</Text>
           </Pressable>
         </View>
@@ -199,6 +209,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 60,
+  },
+  btnPressed: {
+    backgroundColor: '#0056b3', // Darker blue color
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   btn_text: {
     color: 'white',

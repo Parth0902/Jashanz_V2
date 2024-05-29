@@ -40,15 +40,15 @@ const HorizontalScroll = ({filter}) => {
             style={{ marginTop: 10, marginBottom: 5, height: 180 }}
         >
             <View style={{ flexDirection: 'row', gap: 5, paddingHorizontal: 20 }}>
-                <Pressable  style={styles.serviceCard} onPress={e=>{filter("All Events")}}>
-                        <View style={{ height: 80, width: 80, borderRadius: 40, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' }}>
+                    <Pressable  style={styles.serviceCard} onPress={e=>{filter("All Events")}}>
+                        <View style={{ height: 80, width: 80, borderRadius: 40, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center',  borderWidth: 1,borderColor:"#007BFF"}}>
                           <Text style={{fontFamily:"Opensans",fontWeight:"bold",fontSize:18}}>All</Text>
                         </View>
                         <Text style={styles.serviceText}>All Events</Text>
                     </Pressable>
                 {extendedData.map((item, index) => (
                     <Pressable key={index} style={styles.serviceCard} onPress={e=>{filter(item.service)}}>
-                        <View style={{ height: 80, width: 80, borderRadius: 40, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ height: 80, width: 80, borderRadius: 40, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', borderWidth: 1,borderColor:"#007BFF" }}>
                             <Image source={item.image} style={styles.serviceImg} />
                         </View>
                         <Text style={styles.serviceText}>{item.service}</Text>
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     serviceCard: {
         width: 130,
         alignItems: 'center',
+      
     }
 })
 

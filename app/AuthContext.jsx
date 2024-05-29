@@ -22,7 +22,6 @@ export const AuthContextProvider = ({ children }) => {
 
   const UserRegister = async (payload, input) => {
     try {
-      // console.log("UserRegister", payload, input)
       const ack = await axios.post(
         `${url}/api/customers/register/${input}`,
           payload
@@ -35,7 +34,6 @@ export const AuthContextProvider = ({ children }) => {
 
 
   const userOtp = async (payload) => {
-    // console.log("userOtp", payload);
     try {
       let headersList = {
         "Accept": "*/*",
@@ -50,8 +48,26 @@ export const AuthContextProvider = ({ children }) => {
       if(response.status === 200){
         setUserRegisterPayload(payload);
       }
+      return response;
+    } catch (err) {
+      return { error: true, msg: err};
+    }
+  };
 
-      // console.log(data);
+  const AdminOtp = async (payload) => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "Content-Type": "application/json"
+      };
+      let response = await fetch(`${url}/api/generateAdminOtp/${payload.mobileNumber}`, {
+       method: "GET",
+      headers: headersList
+      });
+      let data = await response.text();
+      if(response.status === 200){
+        setUserRegisterPayload(payload);
+      }
       return response;
     } catch (err) {
       return { error: true, msg: err};
@@ -138,7 +154,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload}}
+      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp}}
     >
       {children}
     </AuthContext.Provider>

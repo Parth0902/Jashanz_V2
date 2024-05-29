@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
-import { View, StyleSheet, Text, Pressable, Image } from "react-native";
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import { EvilIcons } from "@expo/vector-icons";
+import { View, StyleSheet, Text, Image } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { EventContext } from "../app/EventContext";
-import { Link } from 'expo-router'
+import { Link } from 'expo-router';
 
 const EventCard = ({ event }) => {
   const { setEventDataContext } = useContext(EventContext);
@@ -16,25 +15,19 @@ const EventCard = ({ event }) => {
     <Link style={styles.ActionBtn} href={{ pathname: 'tabs/eventPage', params: { event: JSON.stringify(event) } }} onPress={handlePress}>
       <View style={styles.eventCard}>
         <Image
-          source={{
-            uri: `${event.images[0].imgUrl}`,
-          }}
+          source={{ uri: `${event.images[0].imgUrl}` }}
           style={styles.eventImg}
         />
         <View style={styles.eventContent}>
           <View style={{ gap: 7 }}>
-            <Text style={styles.eventHeading}>{event.eventType}</Text>
-
-
-            <Text style={styles.eventSubHeading}>
+            <Text style={styles.eventHeading} numberOfLines={1} ellipsizeMode="tail">{event.eventType}</Text>
+            <Text style={styles.eventSubHeading} numberOfLines={1} ellipsizeMode="tail">
               <FontAwesome name="user-o" color="black" /> {event?.admin?.firmName}
             </Text>
-            <Text style={styles.eventSubHeading}>
-              <SimpleLineIcons name="location-pin" color="black" /> {event?.address?.city} ,{event?.address?.state}
+            <Text style={styles.eventSubHeading} numberOfLines={1} ellipsizeMode="tail">
+              <SimpleLineIcons name="location-pin" color="black" /> {event?.address?.city}, {event?.address?.state}
             </Text>
-
           </View>
-
         </View>
       </View>
     </Link>
@@ -44,41 +37,36 @@ const EventCard = ({ event }) => {
 const styles = StyleSheet.create({
   eventCard: {
     borderRadius: 20,
-    width: 210,
-    height: 320,
+    width: 190, // Fixed width for each card
     backgroundColor: "#fff",
-    zIndex: 0,
-    elevation: 5, // Adjust the elevation value for the shadow effect
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 }, // Controls the offset of the shadow
-    shadowOpacity: 0.3, // Controls the transparency of the shadow
-    shadowRadius: 4, // Controls the blur effect of the shadow
-
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#007BFF",
+    marginBottom: 10, // Adjust spacing between cards
   },
   eventImg: {
-    height: 200,
-    objectFit: "cover",
-    borderRadius: 20,
+    height: 150,
+    resizeMode: 'cover',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   eventContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
+    padding: 10,
   },
   eventHeading: {
     fontSize: 18,
     fontWeight: "500",
-    paddingBottom: 5,
-    textAlign:'center',
-    width:200,
-    fontFamily:'Roboto',
+    textAlign: 'center',
+    fontFamily: 'Roboto',
   },
   eventSubHeading: {
     fontSize: 14,
-    paddingHorizontal: 10,
-    fontFamily:'Opensans',
+    fontFamily: 'Opensans',
   },
-
 });
 
 export default EventCard;

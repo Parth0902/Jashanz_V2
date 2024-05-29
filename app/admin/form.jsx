@@ -11,7 +11,7 @@ import axios from 'axios'
 import CustomDropdown from "../../Components/CustomDropdown";
 const { url } = process.env;
 import { AdminContext } from "../AdminContext";
-import Toast from "react-native-toast-message";
+import { useToast } from "../ToastContext";
 import { Ionicons } from "@expo/vector-icons";
 const states = [
     { label: "Andhra Pradesh", value: "Andhra Pradesh" },
@@ -57,9 +57,9 @@ const states = [
 ];
 
 const Form = () => {
-
-
+    const [isPressed, setIsPressed] = useState(false);
     const width = Dimensions.get('window').width;
+    const { showSuccess, showError, showWarn } = useToast();
     const video = React.useRef(null);
     const [value, setValue] = useState();
     const [isFocus, setIsFocus] = useState(false);
@@ -69,7 +69,7 @@ const Form = () => {
     const { Token } = useContext(AuthContext);
     const { AdminInfo } = useContext(AdminContext);
     const [eventData, setEventData] = useState({
-        id: "2",
+        id:2,
         eventType: AdminInfo.specialization,
         pricingDetails: {
             id: 1,
@@ -305,26 +305,12 @@ const Form = () => {
                 console.log(uploadData);
     
                 if (uploadResponse.status === 200) {
-                    Toast.show({
-                        type: "success",
-                        text1: "Event added successfully",
-                        visibilityTime: 1000,
-                        position: "bottom",
-                    });
+                   showSuccess("Event added successfully");
                 } else {
-                    Toast.show({
-                        type: "error",
-                        text1: "Failed to add event",
-                        visibilityTime: 1000,
-                        position: "bottom",
-                    });
+                    showError("Error adding event");
                 }
             } else {
-                Toast.show({
-                    type: "error",
-                    text1: "Event already exists",
-                    visibilityTime: 1000,
-                });
+                showWarn("Event already exists");
             }
         } catch (error) {
             console.error("Error adding event:", error);
@@ -561,7 +547,11 @@ const Form = () => {
                     </Pressable>
                     <AdditionalService visible={dialogVisible} onClose={handleCloseDialog} onSubmit={handleAddService} />
 
-                    <Pressable style={styles.SubmitBtn} onPress={handleSubmit}>
+                    <Pressable
+                      style={[styles.SubmitBtn, isPressed && styles.btnPressed]}
+                      onPressIn={() => setIsPressed(true)}
+                      onPressOut={() => setIsPressed(false)} 
+                     onPress={handleSubmit}>
                         <Text style={styles.SubmitBtnTxt}>Submit</Text>
                     </Pressable>
                 </View>
@@ -635,7 +625,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         height: 60,
-    },
+    },btnPressed: {
+        backgroundColor: '#0056b3', // Darker blue color
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5,
+      },
     SubmitBtnTxt: {
         fontSize: 18,
         color: "white",

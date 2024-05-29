@@ -5,13 +5,19 @@ import {
   TextInput,
   Pressable,
   Image,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { useContext, useState } from "react";
-import { Link,useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import Alert from "../Components/alertComponent";
 import Signup from "../Components/SignUpDummy.jsx";
 import { AuthContext } from "./AuthContext";
 import { AntDesign } from "@expo/vector-icons";
+import {  useToast} from "./ToastContext";
+
+
+
 
 export default function Login() {
   const { UserLogin } = useContext(AuthContext);
@@ -20,7 +26,9 @@ export default function Login() {
     emailormobile: "",
     password: "",
   });
-  const navigation =useNavigation();
+  const { showSuccess, showError, showWarn } = useToast();
+  const [isPressed, setIsPressed] = useState(false);
+  const navigation = useNavigation();
   const [showAlert, setShowAlert] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [alertData, setAlertData] = useState({
@@ -29,12 +37,6 @@ export default function Login() {
     text: "",
   });
 
-  const DisplayAlert = () => {
-    setShowAlert(true);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 3000);
-  };
 
   const handlePress = () => {
     setCurrentScreen(false);
@@ -45,107 +47,100 @@ export default function Login() {
   };
 
   const handleErrorResponse = (response) => {
-    // Assuming your API might return a structured error message in some cases
-    let errorMessage = "Invalid username or password"; // Default message
+    let errorMessage = "Invalid username or password"; 
     if (response && response.error && response.msg) {
-      // If the response contains a custom error message
       errorMessage = response.msg;
     }
-  
-    setAlertData({
-      color: "#721c24",
-      backgroundColor: "#f8d7da",
-      text: errorMessage,
-    });
-    DisplayAlert();
+    showError(errorMessage);
   };
 
   const handleSubmit = async () => {
     try {
-      const ack = await UserLogin(payload);
-      if(ack.status===403){
-        navigation.navigate('login')
-      }
-      // Ensure ack is defined and check status or existence of data
-      if (ack && ack.data && ack.status === 200) {
-        console.log("Login successful", ack.data);
-      } else {
-        // This could be an indication of a problem with the API call
-        handleErrorResponse({ error: true, msg: 'Invalid username or password' });
+      if(payload.emailormobile === "" || payload.password === ""){
+        showWarn("Please fill all the fields");
+      }else{
+        const ack = await UserLogin(payload);
+        if (ack && ack.data && ack.status === 200) {
+          console.log("Login successful", ack.data);
+        } else {
+          handleErrorResponse({ error: true, msg: 'Invalid username or password' });
+        }
       }
     } catch (err) {
       console.log("Error during login: ", err);
       handleErrorResponse(err);
     }
   };
-  
-  
 
   return (
-    <View style={styles.container}>
-      {showAlert && (
-        <Alert
-          color={alertData.color}
-          backgroundColor={alertData.backgroundColor}
-          data={alertData.text}
-        />
-      )}
-
-      <View style={styles.hiddenMenue}>
-        <AntDesign
-          name="menufold"
-          size={24}
-          color="black"
-          onPress={handleToggle}
-        />
-
-        {showAdmin && (
-          <Link style={styles.goToAdmin} href={"/adminAuth"}>
-            <Text style={styles.goToAdminText}>Admin Login</Text>
-          </Link>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        {showAlert && (
+          <Alert
+            color={alertData.color}
+            backgroundColor={alertData.backgroundColor}
+            data={alertData.text}
+          />
         )}
-      </View>
 
-      {currentScreen && (
-        <>
-          {/* <Image
-            source={require("../assets/jashanzLogo.png")}
-            style={{ width: 120, height: 120 }}
-          /> */}
+        <View style={styles.hiddenMenue}>
+          <AntDesign
+            name="menufold"
+            size={24}
+            color="black"
+            onPress={handleToggle}
+          />
 
-          <View style={styles.loginBox}>
-          <Image source={require('../assets/Login_graphic_2.png')} style={styles.LoginGraphic}/>
-            <TextInput
-              placeholder="Email or Mobile No"
-              style={styles.input}
-              onChangeText={(text) =>
-                setPayload({ ...payload, emailormobile: text })
-              }
-            />
-            <TextInput
-              placeholder="Password"
-              secureTextEntry={true}
-              style={styles.input}
-              onChangeText={(text) =>
-                setPayload({ ...payload, password: text })
-              }
-            />
-            <View style={styles.loginBottom}>
-              <Text style={styles.text}>
-                Don't have and Account ?{" "}
-                <Text style={styles.linkText} onPress={handlePress}>
-                  Register Here
+          {showAdmin && (
+            <Link style={styles.goToAdmin} href={"/adminAuth"}>
+              <Text style={styles.goToAdminText}>Admin Login</Text>
+            </Link>
+          )}
+        </View>
+
+        {currentScreen && (
+          <>
+            <View style={styles.loginBox}>
+              <Image source={require('../assets/Login_graphic_2.png')} style={styles.LoginGraphic} />
+              <TextInput
+                placeholder="Email or Mobile No"
+                style={styles.input}
+                onChangeText={(text) =>
+                  setPayload({ ...payload, emailormobile: text })
+                }
+              />
+              <TextInput
+                placeholder="Password"
+                secureTextEntry={true}
+                style={styles.input}
+                onChangeText={(text) =>
+                  setPayload({ ...payload, password: text })
+                }
+              />
+              <View style={styles.loginBottom}>
+                <Text style={styles.text}>
+                  Don't have and Account ?{" "}
+                  <Text style={styles.linkText} onPress={handlePress}>
+                    Register Here
+                  </Text>
                 </Text>
-              </Text>
-              <Pressable style={styles.btn} onPress={handleSubmit}>
-                <Text style={styles.submitText}>Submit</Text>
-              </Pressable>
+                <Pressable
+                  style={[styles.btn, isPressed && styles.btnPressed]}
+                  onPressIn={() => setIsPressed(true)}
+                  onPressOut={() => setIsPressed(false)}
+                onPress={handleSubmit}>
+                  <Text style={styles.submitText}>Submit</Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
-        </>
-      )}
-      {!currentScreen && <Signup setCurrentScreen={setCurrentScreen} />}
-    </View>
+          </>
+        )}
+        {!currentScreen && <Signup setCurrentScreen={setCurrentScreen} />}
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -159,37 +154,36 @@ const styles = StyleSheet.create({
   },
   loginBox: {
     gap: 35,
-    justifyContent:'center',
-    alignItems:'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   input: {
-    width: 340, 
+    width: 340,
     height: 60,
     borderWidth: 1,
-    borderColor:"#007BFF", 
+    borderColor: "#007BFF",
     borderRadius: 6,
     paddingHorizontal: 20,
   },
-  LoginGraphic:{
-    marginTop:30,
-    height:300,
-    width:362,
-    
+  LoginGraphic: {
+    marginTop: 30,
+    height: 300,
+    width: 362,
   },
   loginBottom: {
     gap: 20,
     width: "100%",
     alignItems: "center",
   },
-  text:{
-    fontSize:16,
-    fontFamily:'Monster',
-    fontWeight:"500",
+  text: {
+    fontSize: 16,
+    fontFamily: 'Monster',
+    fontWeight: "500",
   },
   linkText: {
     fontSize: 17,
     color: "#007BFF",
-    fontWeight:"700",
+    fontWeight: "700",
   },
   btn: {
     backgroundColor: "#007BFF",
@@ -198,6 +192,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 60,
+  },btnPressed: {
+    backgroundColor: '#0056b3', // Darker blue color
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   hiddenMenue: {
     position: "absolute",
@@ -214,9 +215,9 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     fontSize: 12,
   },
-  submitText:{
+  submitText: {
     fontSize: 18,
-    color:"white",
-    fontWeight:"700",
+    color: "white",
+    fontWeight: "700",
   }
 });

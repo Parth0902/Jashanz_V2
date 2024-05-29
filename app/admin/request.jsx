@@ -12,38 +12,42 @@ import { AdminContext } from "../AdminContext";
 
 const { url } = process.env;
 import axios from "axios";
-import Toast from "react-native-toast-message";
+import { useToast } from "../ToastContext";
 
 const Request = () => {
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
   const { Token, currentAdmin } = useContext(AuthContext);
   const { adminId } = useContext(AdminContext);
+  const { showError, showWarn,showSuccess } = useToast();
 
   useEffect(() => {
     const fetchRequests = async () => {
-      let headersList = {
+      const headersList = {
         Accept: "*/*",
         Authorization: `Bearer ${Token}`,
       };
 
-      let reqOptions = {
-        url: `http://backend.jashanz.com/bookings/receiverequest/${adminId}`,
+      const reqOptions = {
         method: "GET",
         headers: headersList,
       };
 
-      if (adminId) {
-        let response = await axios.request(reqOptions);
-        console.log("admin request :",response.status)
-        if (response.status === 200) {
-          setRequests(
-            response?.data.filter(
-              (request) => request.bookingStatus === "PENDING"
-            )
-          );
-          setAllRequests(response.data);
+      try {
+        if (adminId) {
+          const response = await fetch(`${url}/bookings/receiverequest/${adminId}`, reqOptions);
+          console.log("admin request :", response.status);
+
+          if (response.status === 200) {
+            const data = await response.json();
+            setRequests(data.filter((request) => request.bookingStatus === "PENDING"));
+            setAllRequests(data);
+          } else if (response.status === 404) {
+            showWarn("No requests found");
+          }
         }
+      } catch (err) {
+        showError("Error fetching requests:", err);
       }
     };
 
@@ -69,11 +73,7 @@ const Request = () => {
         }
         return request;
       });
-      Toast.show({
-        type: "success",
-        text1: "Request Accepted",
-        visibilityTime: 2000,
-      });
+      showSuccess("Request Accepted");
       setRequests(updatedRequests);
     }
   };
@@ -97,11 +97,7 @@ const Request = () => {
         }
         return request;
       });
-      Toast.show({
-        type: "success",
-        text1: "Request Rejected",
-        visibilityTime: 2000,
-      });
+      showSuccess("Request Rejected");
       setRequests(updatedRequests);
     }
   };

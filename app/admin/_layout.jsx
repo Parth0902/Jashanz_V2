@@ -44,11 +44,9 @@ export default function Layout() {
       };
       if(IsAdmin){
         const res = await axios.request(reqOptions1);
-        
         if (res.status === 200) {
           setAdminId(res.data.id);
           setAdminInfo(res.data);
-          console.log(res.data);
         }
       }
     };
@@ -64,17 +62,17 @@ export default function Layout() {
         Authorization: `Bearer ${Token}`,
       };
 
-      let reqOptions = {
-        url: `${url}/bookings/receiverequest/${adminId}`,
-        method: "GET",
-        headers: headersList,
-      };
-
+    
       if (adminId) {
-        let response = await axios.request(reqOptions);
-        
+          let response = await fetch( `${url}/bookings/receiverequest/${adminId}`, { 
+            method: "GET",
+            headers: headersList
+          });
+  
         if (response.status === 200) {
-          const PendingReqs = response?.data.filter(
+            let data = await response.text()
+            console.log(data);
+            const PendingReqs =data.filter(
             (request) => request.bookingStatus === "PENDING"
           );
           setRequests(PendingReqs);
