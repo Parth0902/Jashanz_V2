@@ -98,15 +98,10 @@ const Event = () => {
       description: "Credits towards consultation",
       image: "https://i.imgur.com/3g7nmJC.jpg",
       currency: "INR",
-      key: "rzp_test_cVO1i4YkqUINUy",
-      amount: "5000",
-      name: "Acme Corp",
+      key: "rzp_live_5BpvObreg8ZoWf",
+      amount: (totalPrice + GST)*100,
+      name: "Jashanz.com",
       order_id: "order_NstL4c3Nb29pjx", //Replace this with an order_id created using Orders API.
-      prefill: {
-        email: "gaurav.kumar@example.com",
-        contact: "9191919191",
-        name: "Gaurav Kumar",
-      },
       theme: { color: "#53a20e" },
     };
 
