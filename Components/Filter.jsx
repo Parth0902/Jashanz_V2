@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Button, Text } from "react-native";
+import CustomDropdown from './CustomDropdown';
 import SearchSelect from './SearchSelect';
 
 const Filter = ({ events, setEvents }) => {
@@ -9,27 +10,39 @@ const Filter = ({ events, setEvents }) => {
 
   useEffect(() => {
     if (events) {
+      setCities([]);
+      setStates([]);
       const uniqueCities = new Set();
       const uniqueStates = new Set();
       events.forEach((event) => {
-        uniqueCities.add({ label: event.address.city, value: event.address.city });
-        uniqueStates.add({ label: event.address.state, value: event.address.state });
+        uniqueCities.add(event.address.city);
+        uniqueStates.add(event.address.state);
       });
+      
+      uniqueCities.forEach((city) => {
+        setCities((prev) => [...prev, { label: city, value: city }]);
+      }
+      );
 
-      setCities(Array.from(uniqueCities));
-      setStates(Array.from(uniqueStates));
+      uniqueStates.forEach((state) => {
+        setStates((prev) => [...prev, { label: state, value: state }]);
+      }
+      );
+      
     }
   }, [events]);
 
   const filterByState = (data) => {
+    console.log(data);
     setEvents(OgEvents);
-    const newEvents = OgEvents.filter((item) => item.address.state === data);
+    const newEvents = OgEvents.filter((item) => item.address.state === data.value);
     setEvents(newEvents);
   };
 
   const filterByCity = (data) => {
+   
     setEvents(OgEvents);
-    const newEvents = OgEvents.filter((item) => item.address.city === data);
+    const newEvents = OgEvents.filter((item) => item.address.city === data.value);
     setEvents(newEvents);
   };
 
@@ -40,8 +53,8 @@ const Filter = ({ events, setEvents }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Filter Events</Text>
-      <SearchSelect placeholder={"Select State"} data={states} func={filterByState} />
-      <SearchSelect placeholder={"Select City"} data={cities} func={filterByCity} />
+      <CustomDropdown heading="Select State" Data={states} handleSelect={filterByState} />
+      <CustomDropdown heading="Select City" Data={cities} handleSelect={filterByCity} />
       <Button title="Reset Filter" onPress={resetFilter} color="#007BFF" />
     </View>
   );
@@ -58,6 +71,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     margin: 16,
+    gap: 16,
+    alignItems:'center'
   },
   headerText: {
     fontSize: 20,

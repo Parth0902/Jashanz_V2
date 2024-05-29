@@ -87,18 +87,7 @@ export default function Login() {
         )}
 
         <View style={styles.hiddenMenue}>
-          <AntDesign
-            name="menufold"
-            size={24}
-            color="black"
-            onPress={handleToggle}
-          />
-
-          {showAdmin && (
-            <Link style={styles.goToAdmin} href={"/adminAuth"}>
-              <Text style={styles.goToAdminText}>Admin Login</Text>
-            </Link>
-          )}
+         
         </View>
 
         {currentScreen && (
@@ -127,11 +116,17 @@ export default function Login() {
                     Register Here
                   </Text>
                 </Text>
+
+                <Text style={styles.text}>
+                  <Text style={styles.linkText} onPress={()=>navigation.navigate('ForgotPassword')}>
+                  Forgot Password
+                  </Text>
+                </Text>
                 <Pressable
                   style={[styles.btn, isPressed && styles.btnPressed]}
                   onPressIn={() => setIsPressed(true)}
                   onPressOut={() => setIsPressed(false)}
-                onPress={handleSubmit}>
+                  onPress={handleSubmit}>
                   <Text style={styles.submitText}>Submit</Text>
                 </Pressable>
               </View>
