@@ -18,6 +18,9 @@ import { EventContext } from "../EventContext";
 import {  useToast} from "../ToastContext";
 import Carousel from "../../Components/carousel";
 import CustomDropdown from "../../Components/CustomDropdown";
+import { v4 as uuidv4 } from 'uuid';
+
+
 
 const Event = () => {
   const width = Dimensions.get("window").width;
@@ -101,7 +104,7 @@ const Event = () => {
       key: 'rzp_test_qDec6eJBgUkf7z',
       amount:(totalPrice + GST)*100,
       name: 'Jashanz.com',
-      order_id:'order_DslnoIgkIDL8Zt',//Replace this with an order_id created using Orders API.
+      order_id:uuidv4(),//Replace this with an order_id created using Orders API.
       prefill: {
         name: 'Jashanz.comr'
       },   
