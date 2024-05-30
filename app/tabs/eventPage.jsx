@@ -95,15 +95,18 @@ const Event = () => {
 
   const HandlePayment = async () => {
     var options = {
-      description: "Credits towards consultation",
-      image: "https://i.imgur.com/3g7nmJC.jpg",
-      currency: "INR",
-      key: "rzp_live_5BpvObreg8ZoWf",
-      amount: (totalPrice + GST)*100,
-      name: "Jashanz.com",
-      order_id: "order_NstL4c3Nb29pjx", //Replace this with an order_id created using Orders API.
-      theme: { color: "#53a20e" },
-    };
+      description: 'Thank For Choosing Our Service',
+      image: 'https://jashanzprimaryfiles.s3.ap-south-1.amazonaws.com/jz.jpg',
+      currency: 'INR',
+      key: 'rzp_test_qDec6eJBgUkf7z',
+      amount:(totalPrice + GST)*100,
+      name: 'Jashanz.com',
+      order_id:'order_DslnoIgkIDL8Zt',//Replace this with an order_id created using Orders API.
+      prefill: {
+        name: 'Jashanz.comr'
+      },   
+      theme: {color: '#53a20e'}
+    }
 
     try {
       const paymentResponse = await RazorpayCheckout.open(options);
