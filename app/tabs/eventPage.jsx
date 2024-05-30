@@ -15,12 +15,11 @@ import { Video, ResizeMode } from "expo-av";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import RazorpayCheckout from "react-native-razorpay";
 import { EventContext } from "../EventContext";
-import {  useToast} from "../ToastContext";
+import { useToast } from "../ToastContext";
 import Carousel from "../../Components/carousel";
 import CustomDropdown from "../../Components/CustomDropdown";
 import { v4 as uuidv4 } from 'uuid';
-
-
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Event = () => {
   const width = Dimensions.get("window").width;
@@ -38,6 +37,22 @@ const Event = () => {
   );
   const [GST, setGST] = useState(totalPrice * 0.18);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [bookingDate, setBookingDate] = useState(new Date());
+  const [bookingTime, setBookingTime] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || bookingDate;
+    setShowDatePicker(false);
+    setBookingDate(currentDate);
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || bookingTime;
+    setShowTimePicker(false);
+    setBookingTime(currentTime);
+  };
 
   const handleVideoLoaded = () => {
     const play = async () => {
@@ -56,8 +71,6 @@ const Event = () => {
     }
     setIsPlaying(!isPlaying);
   };
-
-
 
   useEffect(() => {
     const UpdateGst = (totalPrice) => {
@@ -102,13 +115,13 @@ const Event = () => {
       image: 'https://jashanzprimaryfiles.s3.ap-south-1.amazonaws.com/jz.jpg',
       currency: 'INR',
       key: 'rzp_test_qDec6eJBgUkf7z',
-      amount:(totalPrice + GST)*100,
+      amount: (totalPrice + GST) * 100,
       name: 'Jashanz.com',
-      order_id:uuidv4(),//Replace this with an order_id created using Orders API.
+      order_id: uuidv4(),//Replace this with an order_id created using Orders API.
       prefill: {
         name: 'Jashanz.comr'
-      },   
-      theme: {color: '#53a20e'}
+      },
+      theme: { color: '#53a20e' }
     }
 
     try {
@@ -127,10 +140,8 @@ const Event = () => {
 
   return (
     <View style={styles.container}>
-  
       <Text style={styles.eventName}>{eventData?.admin?.firmName}</Text>
       <ScrollView style={{ width: "100%" }}>
-  
         <View style={styles.container2}>
           <View style={styles.container3}>
             <View style={styles.videoContainer}>
@@ -153,11 +164,11 @@ const Event = () => {
                 />
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.CarouselContainer}>
               <Carousel images={eventData?.images} />
-             </View>
-        
+            </View>
+
             <View style={styles.textBox}>
               <View style={styles.box}>
                 <Text style={styles.boxTextHeading}>
@@ -199,7 +210,35 @@ const Event = () => {
               </View>
             </View>
 
-            
+            <View style={styles.dateTimeContainer}>
+              <View style={styles.dateTimePicker}>
+                <Button onPress={() => setShowDatePicker(true)} title="Select Booking Date" />
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={bookingDate}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                )}
+                <Text style={styles.dateTimeHeading}>Selected Date:   <Text style={styles.dateTimeText}>{bookingDate.toLocaleDateString()}</Text></Text>
+
+              </View>
+              <View style={styles.dateTimePicker}>
+                <Button onPress={() => setShowTimePicker(true)} title="Select Booking Time" />
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={bookingTime}
+                    mode="time"
+                    display="default"
+                    onChange={handleTimeChange}
+                  />
+                )}
+                <Text style={styles.dateTimeHeading}>Selected Time:    <Text style={styles.dateTimeText}>{bookingTime.toLocaleTimeString()}</Text></Text>
+             
+              </View>
+            </View>
+
             <CustomDropdown heading="Select Additional Services" Data={additionalServices} handleSelect={handleSelect} />
             <View style={styles.additionalServices}>
               <Text style={styles.additionalServicesText}>
@@ -413,9 +452,32 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 10,
   },
-  CarouselContainer:{
+  CarouselContainer: {
     width: "100%",
-  }
+  },
+  dateTimeContainer: {
+    width: '100%',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginTop: 20,
+    marginBottom: 20,
+    gap: 20,
+  },
+  dateTimePicker: {
+    marginBottom: 10,
+  },
+  dateTimeHeading: {
+    fontSize: 18,
+    color: 'black',
+    marginTop: 10,
+  },
+  dateTimeText: {
+    fontSize: 16,
+    color: 'gray',
+    paddingVertical: 5,
+  },
 });
 
 export default Event;
