@@ -61,7 +61,8 @@ export default function Login() {
       }else{
         const ack = await UserLogin(payload);
         if (ack && ack.data && ack.status === 200) {
-          console.log("Login successful", ack.data);
+          showSuccess("Login Successful");
+          // navigation.navigate("Home");
         } else {
           handleErrorResponse({ error: true, msg: 'Invalid username or password' });
         }
@@ -78,18 +79,6 @@ export default function Login() {
       style={{ flex: 1 }}
     >
       <View style={styles.container}>
-        {showAlert && (
-          <Alert
-            color={alertData.color}
-            backgroundColor={alertData.backgroundColor}
-            data={alertData.text}
-          />
-        )}
-
-        <View style={styles.hiddenMenue}>
-         
-        </View>
-
         {currentScreen && (
           <>
             <View style={styles.loginBox}>
@@ -144,11 +133,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 30,
     backgroundColor: "#EEFDFF",
   },
   loginBox: {
-    gap: 35,
+    gap: 20,
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -161,8 +149,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   LoginGraphic: {
+    objectFit: 'contain',
     marginTop: 30,
-    height: 300,
+    height:270,
     width: 362,
   },
   loginBottom: {

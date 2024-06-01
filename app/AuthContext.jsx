@@ -138,6 +138,30 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const getCurrentUser = async () => {
+    let headersList = {
+        "Accept": "*/*",
+        "Authorization": `Bearer ${Token}`
+    };
+
+    try {
+        let response = await fetch(`${url}/customer/current-user`, {
+            method: "GET",
+            headers: headersList
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let data = await response.text();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        throw error;  // Re-throwing the error after logging it
+    }
+};
 
 
   useEffect(() => {
@@ -154,7 +178,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp}}
+      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp,getCurrentUser}}
     >
       {children}
     </AuthContext.Provider>

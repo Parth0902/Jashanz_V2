@@ -37,7 +37,7 @@ const HorizontalScroll = ({filter}) => {
             onScroll={handleScroll}
             scrollEventThrottle={16}  // Adjust based on performance
             ref={scrollViewRef}
-            style={{ marginTop: 10, marginBottom: 5, height: 180 }}
+            style={{ marginTop: 10, marginBottom: 10, height: 200 }}
         >
             <View style={{ flexDirection: 'row', gap: 5, paddingHorizontal: 20 }}>
                     <Pressable  style={styles.serviceCard} onPress={e=>{filter("All Events")}}>

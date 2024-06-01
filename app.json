@@ -4,7 +4,7 @@
     "slug": "Jashanz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/JashanzAppIcon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/JashanzAppIcon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.Jashanz"
@@ -32,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "a4633bf6-caf6-4b8d-b60d-85c09b352b09"
+      }
     }
   }
 }
