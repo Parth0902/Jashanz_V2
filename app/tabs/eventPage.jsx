@@ -42,7 +42,7 @@ const Event = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const { Token, getCurrentUser } = useContext(AuthContext);
-  const [currentUser, setCurrentUser] = useState(null);
+
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || bookingDate;
@@ -118,8 +118,9 @@ const Event = () => {
       console.log("paymentId", paymentId);
       let selectedServicesString = stringGenerate();
 
-      const userData = await getCurrentUser();
-      setCurrentUser(userData);
+      let currentUser =await getCurrentUser();
+      currentUser = JSON.parse(currentUser); 
+      const {id,mobileNumber,email} = currentUser;
       let payload = {
         "adminId": eventData.admin.id,
         "adminFirmName": eventData.admin.firmName,
@@ -128,9 +129,9 @@ const Event = () => {
         "eventName": eventData.eventType,
         "additionalServices": selectedServicesString,
         "paymentId": paymentId,
-        "customerId": currentUser.id,
-        "customerContactNumber": currentUser.mobileNumber,
-        "customerEmail": currentUser.email,
+        "customerId": id,
+        "customerContactNumber": mobileNumber,
+        "customerEmail": email,
         "paymentStatus": "Paid",
         "pricingDetails": eventData.pricingDetails.basePrice,
         "pricingDetailsId": eventData.pricingDetails.id,

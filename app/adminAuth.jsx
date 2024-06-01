@@ -34,12 +34,17 @@ export default function AdminAuth() {
 
     const handleSubmit = async () => {
         try {
-            const ack = await AdminLogin(payload);
-            if (ack.status === 200) {
-                navigation.navigate('index');
-            }
-             else {
-                handleErrorResponse(ack);
+            if(payload.emailormobile === "" || payload.password === ""){
+                showWarn("Please fill all the fields");
+              }
+              else{
+                  const ack = await AdminLogin(payload);
+                  if (ack.status === 200) {
+                      navigation.navigate('index');
+                  }
+                   else {
+                      handleErrorResponse(ack);
+                     }
             }
         } catch (err) {
             console.log(err);

@@ -93,22 +93,6 @@ const Index = () => {
 
                     <AdminGuide/>
 
-                    <View style={styles.impLinks}>
-                        <Text style={{fontFamily:"Popins",fontSize:24,textAlign:'center'}}>Important Pages</Text>
-                        <Pressable onPress={() => navigation.navigate('contactUs')}>
-                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>1. Contact Us</Text>
-                        </Pressable>
-                        <Pressable onPress={() => navigation.navigate('PrivacyPolicy')}>
-                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>2. Privacy Policy</Text>
-                        </Pressable>
-                        <Pressable onPress={() => navigation.navigate('RefundPolicy')}>
-                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>3. Refund Policy</Text>
-                        </Pressable>
-                        <Pressable onPress={() => navigation.navigate('TermsAndConditions')}>
-                            <Text style={{fontFamily:"Popins",fontSize:18,color:'#007BFF'}}>4. Terms and Conditions</Text>
-                        </Pressable>
-                    </View>
-
                 </View>
             </ScrollView>
         </View>

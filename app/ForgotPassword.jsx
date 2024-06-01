@@ -64,10 +64,10 @@ const ForgotPassword = () => {
             {
                 Phase === "email" && 
                 <>
-                    <Text style={styles.title}>Enter the registered email or password</Text>
+                    <Text style={styles.title}>Enter the registered Email</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Email or Mobile No"
+                        placeholder="Mobile No"
                         value={Input}
                         onChangeText={setInput}
                     />

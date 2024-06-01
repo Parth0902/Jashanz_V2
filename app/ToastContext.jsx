@@ -23,7 +23,7 @@ export const ToastProvider = ({ children }) => {
           }).start(() => {
             setToast({ ...toast, visible: false });
           });
-        }, 3000);
+        }, 1000);
       });
     }
   }, [toast]);

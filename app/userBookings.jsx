@@ -10,20 +10,22 @@ import {
 import { AuthContext } from "./AuthContext";
 import { EventContext } from "./EventContext";
 import axios from "axios";
-import Toast from "react-native-toast-message";
-
+import { useToast } from "./ToastContext";
 const { url } = process.env;
 
 const Request = () => {
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { Token } = useContext(AuthContext);
-  const { currentUser } = useContext(EventContext);
+  const { Token,getCurrentUser } = useContext(AuthContext);
+  const {showError,showWarn}=useToast();
+
   const [noRequests, setNoRequests] = useState(false);
   useEffect(() => {
     const fetchRequests = async () => {
-        try {
+      try {
+          let currentUser =await getCurrentUser();
+          currentUser = JSON.parse(currentUser);   
           let headersList = {
             Accept: "*/*",
             Authorization: `Bearer ${Token}`,
@@ -42,23 +44,21 @@ const Request = () => {
           }
         } catch (error) {
           if (error.response && error.response.status === 404) {
-            setNoRequests(true);
+              showWarn("No requests found.");
+              setNoRequests(true);
           } else {
-            Toast.show({
-              type: "error",
-              text1: "Error fetching requests",
-              text2: error.message,
-            });
+            showError("Something went wrong. Please try again later.")
           }
         } finally {
           setLoading(false);
         }
       };
-      if(currentUser && Token)
+      console.log(Token);
+      if( Token)
         {
             fetchRequests();
         }
-    }, [currentUser, Token]);
+    }, [Token]);
 
   const filterRequests = (status) => {
     if (status === "all") {

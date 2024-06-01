@@ -84,7 +84,7 @@ const OtpInput = () => {
           />
         ))}
       </View>
-      <Text style={{fontSize:16, paddingTop:10,paddingBottom:10,fontFamily:"Popins"}}>Enter the otp sent by Jshanz on your registered mobile number</Text>
+      <Text style={{fontSize:16, paddingTop:10,paddingBottom:10,fontFamily:"Popins"}}>Enter the otp sent by Jashanz on your registered mobile number</Text>
       <Pressable onPress={handleResendOtp} style={{paddingTop:10,paddingBottom:10, width:"87%"}}>
         <Text style={{fontSize:18,fontFamily:"Popins",color:'#007BFF'}}>Resend OTP</Text>
       </Pressable>
