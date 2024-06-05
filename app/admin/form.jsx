@@ -265,7 +265,26 @@ const Form = () => {
             },
         }));
     }
+
+    const validateMandatoryFields = () => {
+        const mandatoryFields = [
+            eventData.eventType,
+            eventData.pricingDetails.basePrice,
+            eventData.address.state,
+            eventData.address.city,
+            eventData.address.pinCode,
+            eventData.address.landmark,
+        ];
+
+        return mandatoryFields.every(field => field && field.trim() !== "");
+    }
+
     const handleSubmit = async () => {
+        if (!validateMandatoryFields()) {
+            showWarn("All mandatory fields must be filled");
+            return;
+        }
+        
         try {
             console.log("Checking event existence...");
 
@@ -287,7 +306,6 @@ const Form = () => {
             if (checkResponse.status === 200) {
                 console.log("Event does not exist. Proceeding to add event...");
         
-
                 // Convert eventData to JSON string
                 const eventPayload = JSON.stringify(eventData);
                 console.log(eventPayload);
@@ -303,9 +321,6 @@ const Form = () => {
                 });
 
                 const uploadData = await uploadResponse.text();
-                console.log(uploadResponse.status);
-                console.log(uploadData);
-
                 if (uploadResponse.status === 200) {
                     showSuccess("Event added successfully");
                 } else {

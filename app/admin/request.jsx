@@ -16,9 +16,9 @@ const Request = () => {
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
   const { Token, currentAdmin } = useContext(AuthContext);
-  const { adminId } = useContext(AdminContext);
+  const { adminId,refresh} = useContext(AdminContext);
   const { showError, showWarn, showSuccess } = useToast();
-  
+
   const fetchRequests = async () => {
     const headersList = {
       Accept: "*/*",
@@ -48,7 +48,7 @@ const Request = () => {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [refresh,adminId]);
 
   const AcceptRequest = async (id) => {
     let headersList = {

@@ -26,7 +26,7 @@ const ForgotPassword = () => {
           }
         
           try {
-            const response = await fetch(`${url}/api/generateUserForgotPasswordOtp/${Input}`, {
+            const response = await fetch(`${url}/api/generateResetPasswordOtp/${Input}`, {
               method: "GET",
               headers: headersList
             });
@@ -58,20 +58,22 @@ const ForgotPassword = () => {
           }
         
           try {
-            const res= await fetch(`${url}/api/verifyUserForgotPasswordOtp/${Input}/${OtpInput}`, {
-              method: "GET",
-              headers: headersList
-            });
+          
+            let res = await fetch(`https://backend.jashanz.com/api/verifyResetPasswordOtp/${Input}/${OtpInput}`, { 
+                method: "GET",
+                headers: headersList
+              });
+
+            console.log(res);
             if(res.status!==200){
               showWarn("Invalid OTP");
               return;
             }
 
-            const response = await fetch(`${url}/api/updateUserPassword/${Input}/${password}`, {
+            const response = await fetch(`${url}/api/updatePassword/${Input}/${password}`, {
               method: "POST",
               headers: headersList
             });
-            console.log(response)
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }

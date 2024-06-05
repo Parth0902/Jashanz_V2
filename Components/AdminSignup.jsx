@@ -135,6 +135,7 @@ const AdminSignup = ({ setCurrentScreen }) => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps='handled'
       >
         <View style={styles.loginBox}>
           <View style={styles.box}>
@@ -227,21 +228,20 @@ const AdminSignup = ({ setCurrentScreen }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    
   },
   scrollContainer: {
     flexGrow: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 20,
   },
   loginBox: {
+    width: '100%',
+    paddingHorizontal: 20,
     gap: 20,
   },
   input: {
-    width: 340,
+    width: '100%',
     height: 60,
     borderWidth: 1,
     borderColor: '#007BFF',
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   loginBottom: {
     gap: 25,
-    width: 'full',
+    width: '100%',
     alignItems: 'center',
   },
   text: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   box: {
-    alignItems: 'start',
+    alignItems: 'flex-start',
     gap: 2,
   },
   errText: {

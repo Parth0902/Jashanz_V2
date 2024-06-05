@@ -49,33 +49,12 @@ const ForgotPassOtp = ({Input,setPhase,setOtpInput}) => {
 
   const handleSubmit = async() => {
     const otpValue = otp.join('');
-    if (otpValue.length === 6) {
-        const headersList = {
-          "Accept": "*/*",
-        };
-    
-        try {
-          const response = await fetch(`${url}/api/verifyUserForgotPasswordOtp/${Input}/${otpValue}`, {
-            method: "GET",
-            headers: headersList
-          });
-      
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-      
-          const data = await response.text();
-          if(response.status===200){
-              setOtpInput(otpValue);
-              setPhase('changePass');
-              console.log(data);
-          }
-      } catch (error) {
-        console.error("Error sending Otp:", error);
-      }
-    } else {
-        showWarn('Please enter a valid OTP');
+    if(otpValue.length<6){
+      showWarn('Please enter a valid OTP');
+      return;
     }
+    setOtpInput(otpValue);
+    setPhase('changePass');    
   };
 
   return (

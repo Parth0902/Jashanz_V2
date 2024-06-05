@@ -82,7 +82,7 @@ export default function AdminAuth() {
                                 <Text style={styles.linkText} onPress={handlePress}>Register Here</Text>
 
                             </Text>
-                            <Text style={styles.linkText} onPress={() => navigation.navigate('ForgotPassword')}>
+                            <Text style={styles.linkText} onPress={() => navigation.navigate('AdminForgotPassword')}>
                                 Forgot Password
                             </Text>
                             <Pressable

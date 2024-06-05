@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { AuthContextProvider } from "./AuthContext";
 import { View, StyleSheet, Text, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FontAwesome, AntDesign,EvilIcons } from '@expo/vector-icons';
+import { FontAwesome, AntDesign, EvilIcons, MaterialIcons } from '@expo/vector-icons';
 import { EventProvider } from "./EventContext";
 import { AdminProvider } from "./AdminContext";
 import { AuthContext } from "./AuthContext";
@@ -12,7 +12,7 @@ import { ToastProvider } from './ToastContext';
 import LinkModel from "../Components/LinkModel";
 
 const Profile = () => {
-  const { logout, Token } = useContext(AuthContext);
+  const { logout, Token,getCurrentUser,refresh } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const handleLogout = () => {
@@ -71,9 +71,37 @@ const Profile = () => {
   );
 };
 
-
+const UserBookingsHeader = () => {
+  const {refresh ,setRefresh} = useContext(AuthContext);
+  const navigation = useNavigation();
+  const handleRefresh = () => {
+   
+    setRefresh(!refresh);
+  };
+  return (
+    <SafeAreaView style={styles.profileBox}>
+      <View style={styles.profileContainer}>
+        <MaterialIcons
+         name="keyboard-backspace"
+          size={24}
+          color="black"
+          onPress={() => navigation.goBack()}
+          />
+        <Text style={styles.profileText}>My Bookings</Text>
+        <MaterialIcons
+          name="refresh"
+          size={28}
+          color="black"
+          onPress={handleRefresh}
+        />
+      </View>
+    </SafeAreaView>
+  );
+};
 
 export default function RootLayout() {
+
+
   return (
     <AuthContextProvider>
       <ToastProvider>
@@ -91,8 +119,11 @@ export default function RootLayout() {
               <Stack.Screen name="PrivacyPolicy" options={{ headerShown: true }} />
               <Stack.Screen name="RefundPolicy" options={{ headerShown: true }} />
               <Stack.Screen name="TermsAndConditions" options={{ headerShown: true }} />
-              <Stack.Screen name="adminAuth" options={{ headerShown: true,title:"Admin section" }} />
-              <Stack.Screen name="userBookings" options={{ headerShown: true,title:"My Bookings" }} />
+              <Stack.Screen name="adminAuth" options={{ headerShown: true, title: "Admin section" }} />
+              <Stack.Screen
+                name="userBookings"
+                options={{ header: () => <UserBookingsHeader  />}}
+              />
             </Stack>
           </EventProvider>
         </AdminProvider>
@@ -128,5 +159,6 @@ const styles = StyleSheet.create({
   },
   profileText: {
     color: 'black',
+    fontSize: 18,
   }
 });

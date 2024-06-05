@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { Tabs } from "expo-router/tabs";
-import { AntDesign, MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthContext } from "../AuthContext";
 import { AdminContext } from "../AdminContext";
@@ -102,9 +102,9 @@ export default function Layout() {
         />
         <View style={styles.iconContainer}>
           {showRefresh && (
-            <MaterialIcons
+            <SimpleLineIcons
               name="refresh"
-              size={24}
+              size={28}
               color="black"
               onPress={() => {
                 console.log(refresh);
@@ -208,8 +208,8 @@ export default function Layout() {
 
 const styles = StyleSheet.create({
   headerLogo: {
-    height: 30,
-    width: 120,
+    height: 50,
+    width: 140,
   },
   profileBox: {
     flex: 1,

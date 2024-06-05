@@ -18,6 +18,8 @@ export const AuthContextProvider = ({ children }) => {
   const [IsAdmin, setIsAdmin] = useState(null);
   const [Token, setToken] = useState(null);
   const [userRegisterPayload, setUserRegisterPayload] = useState(null);
+  const [refresh, setRefresh] = useState(false);
+  
 
   const UserRegister = async (payload, input) => {
     try {
@@ -46,7 +48,7 @@ export const AuthContextProvider = ({ children }) => {
         "Accept": "*/*",
         "Content-Type": "application/json"
        }
-       console.log(payload);
+    
        let bodyContent = JSON.stringify({
        "alternateMobileNumber":payload.mobileNumber,
        "email":payload.email,
@@ -65,7 +67,7 @@ export const AuthContextProvider = ({ children }) => {
        });
        
        let data = await response.text();
-       console.log(data);
+    
       return response;
     } catch (err) {
       return { error: true, msg: err };
@@ -195,7 +197,6 @@ export const AuthContextProvider = ({ children }) => {
         }
 
         let data = await response.text();
-        console.log(data);
         return data;
     } catch (error) {
         console.error('Error fetching current user:', error);
@@ -218,7 +219,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, UserLogin, logout, UserRegister, Token,AdminRegister, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp,getCurrentUser}}
+      value={{ currentUser, UserLogin, logout, UserRegister, Token,AdminRegister, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp,getCurrentUser,refresh,setRefresh}}
     >
       {children}
     </AuthContext.Provider>
