@@ -46,6 +46,7 @@ export default function Layout() {
         const res = await axios.request(reqOptions1);
         if (res.status === 200) {
           setAdminId(res.data.id);
+          console.log(res.data.id);
           setAdminInfo(res.data);
         }
       }
@@ -71,12 +72,12 @@ export default function Layout() {
   
         if (response.status === 200) {
             let data = await response.text()
-            console.log(data);
+            data = JSON.parse(data);
+       
             const PendingReqs =data.filter(
             (request) => request.bookingStatus === "PENDING"
           );
           setRequests(PendingReqs);
-          console.log(PendingReqs.length);
           setCountR(PendingReqs.length);
           setAllRequests(response.data);
         }

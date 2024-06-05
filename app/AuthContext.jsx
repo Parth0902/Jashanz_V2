@@ -3,7 +3,6 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useNavigation } from "expo-router";
 // Define JWT_TOKEN and TOKEN_KEY or replace them with actual values
-
 const TOKEN_KEY = "your_token_key";
 const User = "userName" // Replace with your actual value
 const { url } = process.env;
@@ -22,13 +21,54 @@ export const AuthContextProvider = ({ children }) => {
 
   const UserRegister = async (payload, input) => {
     try {
-      const ack = await axios.post(
-        `${url}/api/customers/register/${input}`,
-          payload
-      );
-      return ack;
+      let headersList = {
+        "Accept": "*/*",
+        "Content-Type": "application/json"
+       }
+       
+      let bodyContent = JSON.stringify(payload);
+       let response = await fetch(`${url}/api/customers/register/${input}`, { 
+         method: "POST",
+         body: bodyContent,
+         headers: headersList
+       });
+
+       let data = await response.text();
+      return response;
     } catch (err) {
-      return { error: true, msg: err.response.data.msg };
+      return { error: true, msg: err };
+    }
+  };
+
+  const AdminRegister = async (payload, input) => {
+    try {
+      let headersList = {
+        "Accept": "*/*",
+        "Content-Type": "application/json"
+       }
+       console.log(payload);
+       let bodyContent = JSON.stringify({
+       "alternateMobileNumber":payload.mobileNumber,
+       "email":payload.email,
+       "emailormobile":payload.mobileNumber,
+       "firmName":payload.firmName,
+       "mobileNumber":payload.mobileNumber,
+       "password":payload.password,
+       "role":"ROLE_ADMIN",
+       "specialization":payload.specialization,
+       });
+       
+       let response = await fetch(`${url}/api/admin/register/${input}`, { 
+         method: "POST",
+         body: bodyContent,
+         headers: headersList
+       });
+       
+       let data = await response.text();
+       console.log(data);
+      return response;
+    } catch (err) {
+      return { error: true, msg: err };
     }
   };
 
@@ -46,7 +86,7 @@ export const AuthContextProvider = ({ children }) => {
       });
       let data = await response.text();
       if(response.status === 200){
-        setUserRegisterPayload(payload);
+        setUserRegisterPayload({...payload,user:true});
       }
       return response;
     } catch (err) {
@@ -66,7 +106,7 @@ export const AuthContextProvider = ({ children }) => {
       });
       let data = await response.text();
       if(response.status === 200){
-        setUserRegisterPayload(payload);
+        setUserRegisterPayload({...payload,user:false});
       }
       return response;
     } catch (err) {
@@ -178,7 +218,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, UserLogin, logout, UserRegister, Token, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp,getCurrentUser}}
+      value={{ currentUser, UserLogin, logout, UserRegister, Token,AdminRegister, AdminLogin, IsAdmin, currentAdmin, userOtp,userRegisterPayload,AdminOtp,getCurrentUser}}
     >
       {children}
     </AuthContext.Provider>

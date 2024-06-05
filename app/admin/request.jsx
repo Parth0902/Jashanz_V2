@@ -2,24 +2,22 @@ import { React, useEffect, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
-  ImageBackground,
   Text,
   Pressable,
   ScrollView,
 } from "react-native";
 import { AuthContext } from "../AuthContext";
 import { AdminContext } from "../AdminContext";
-
-const { url } = process.env;
 import axios from "axios";
 import { useToast } from "../ToastContext";
+const { url } = process.env;
 
 const Request = () => {
   const [requests, setRequests] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
   const { Token, currentAdmin } = useContext(AuthContext);
   const { adminId } = useContext(AdminContext);
-  const { showError, showWarn,showSuccess } = useToast();
+  const { showError, showWarn, showSuccess } = useToast();
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -36,11 +34,9 @@ const Request = () => {
       try {
         if (adminId) {
           const response = await fetch(`${url}/bookings/receiverequest/${adminId}`, reqOptions);
-          console.log("admin request :", response.status);
-
           if (response.status === 200) {
             const data = await response.json();
-            setRequests(data.filter((request) => request.bookingStatus === "PENDING"));
+            setRequests(data);
             setAllRequests(data);
           } else if (response.status === 404) {
             showWarn("No requests found");
@@ -114,216 +110,83 @@ const Request = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row", gap: 20, marginTop: 20 }}>
-        <Pressable
-          style={styles.FilterBtn}
-          onPress={(e) => filterRequests("PENDING")}
-        >
-          <Text style={styles.btnTxt1}>PENDING</Text>
-        </Pressable>
-        <Pressable
-          style={styles.FilterBtn}
-          onPress={(e) => filterRequests("ACCEPTED")}
-        >
-          <Text style={styles.btnTxt2}>Accepted</Text>
-        </Pressable>
-        <Pressable
-          style={styles.FilterBtn}
-          onPress={(e) => filterRequests("REJECTED")}
-        >
-          <Text style={styles.btnTxt3}>Rejected</Text>
-        </Pressable>
-      </View>
-
-      <View style={{ flex: 1, alignItems: "center", marginTop: 30 }}>
-        <ScrollView style={{ width: "100%", gap: 20 }}>
-          {requests.map((request, id) => (
-            <View
-              style={{
-                width: 380,
-                height: 340,
-                marginBottom: 30,
-                shadowColor: "#000",
-                backgroundColor: "white",
-                borderRadius: 12,
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.2,
-                shadowRadius: 3.84,
-                elevation: 5,
-                paddingVertical: 15,
-                paddingHorizontal: 20,
-              }}
-              key={id}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingBottom: 15,
-                }}
-              >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: 18,
-                    color:
-                      request?.bookingStatus === "ACCEPTED" ? "green" : "red",
-                  }}
-                >
-                  {request?.bookingStatus}
-                </Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingBottom: 15,
-                }}
-              >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 18,
-                    fontWeight: "500",
-                  }}
-                >
-                  Customer Id:{" "}
-                  <Text
-                    style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
-                  >
-                    {request?.id}
-                  </Text>
-                </Text>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 18,
-                    fontWeight: "500",
-                  }}
-                >
-                  Date :
-                  <Text
-                    style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
-                  >
-                    {request?.bookingDate}
-                  </Text>
-                </Text>
-              </View>
-              <Text style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}>
-                Event Name:
-                <Text
-                  style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
-                >
-                  {request?.eventName}
-                </Text>
-              </Text>
-              <Text style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}>
-                Booking Time :
-                <Text
-                  style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
-                >
-                  {request?.bookingTime}
-                </Text>
-              </Text>
-              <Text style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}>
-                Additional Services:
-                <Text
-                  style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
-                >
-                  {request?.additionalServices}
-                </Text>
-              </Text>
-              {request?.bookingStatus === "ACCEPTED" && (
-                <>
-                  <Text
-                    style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}
-                  >
-                    Contact Number:
-                    <Text
-                      style={{
-                        paddingLeft: 20,
-                        fontWeight: "400",
-                        fontSize: 16,
-                      }}
-                    >
-                      {request?.customerContactNumber}
-                    </Text>
-                  </Text>
-                  <Text
-                    style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}
-                  >
-                    customerEmail:
-                    <Text
-                      style={{
-                        paddingLeft: 20,
-                        fontWeight: "400",
-                        fontSize: 16,
-                      }}
-                    >
-                      {request?.customerEmail}
-                    </Text>
-                  </Text>
-                </>
-              )}
-              {/* <Text style={{paddingTop:15,fontSize:18,fontWeight:'500'}}>booking Charge:<Text style={{paddingLeft:20,fontWeight:"400",fontSize:16}}>{request.bookingCharge}</Text></Text> 
-                <Text style={{paddingTop:15,fontSize:18,fontWeight:'500'}}>Booking Ammount:<Text style={{paddingLeft:20,fontWeight:"400",fontSize:16}}>{request?.bookingAmount}</Text></Text> */}
-              {request?.bookingStatus === "PENDING" && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-evenly",
-                    paddingTop: 30,
-                  }}
-                >
-                  <Pressable
-                    style={{
-                      backgroundColor: "#28a745",
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      borderRadius: 8,
-                    }}
-                    onPress={(e) => AcceptRequest(request?.id)}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 18,
-                      }}
-                    >
-                      Accept
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={{
-                      backgroundColor: "red",
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      borderRadius: 8,
-                    }}
-                    onPress={(e) => RejectRequest(request?.id)}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 18,
-                      }}
-                    >
-                      Reject
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+    <View style={{ flexDirection: "row", gap: 20, marginTop: 20 }}>
+      <Pressable
+        style={styles.FilterBtn}
+        onPress={(e) => filterRequests("PENDING")}
+      >
+        <Text style={styles.btnTxt1}>PENDING</Text>
+      </Pressable>
+      <Pressable
+        style={styles.FilterBtn}
+        onPress={(e) => filterRequests("ACCEPTED")}
+      >
+        <Text style={styles.btnTxt2}>Accepted</Text>
+      </Pressable>
+      <Pressable
+        style={styles.FilterBtn}
+        onPress={(e) => filterRequests("REJECTED")}
+      >
+        <Text style={styles.btnTxt3}>Rejected</Text>
+      </Pressable>
     </View>
+
+    <ScrollView style={{ width: '100%' }} contentContainerStyle={styles.scrollContainer}>
+    {requests.map((request, id) => (
+  <View style={[styles.card, request.bookingStatus === "ACCEPTED" ? styles.cardAccepted : request.bookingStatus === "REJECTED" ? styles.cardRejected : styles.cardPending]} key={id}>
+    <Text style={styles.cardHeader}>{request.bookingStatus.charAt(0).toUpperCase() + request.bookingStatus.slice(1).toLowerCase()}</Text>
+    <View style={styles.cardBody}>
+      <View style={styles.label}>
+        <Text>ID:</Text>
+        <Text style={styles.value}>{request.id}</Text>
+        <Text>Date:</Text>
+        <Text style={styles.value}>{new Date(request.bookingDate).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</Text>
+      </View>
+      <View style={[styles.label, styles.eventName]}>
+        <Text>Event Name:</Text>
+        <Text style={[styles.value, styles.eventNameValue]}>{request.eventName}</Text>
+      </View>
+      <View style={[styles.label, styles.additionalServices]}>
+        <Text>Additional Services:</Text>
+        <Text style={[styles.value, styles.additionalServicesValue]}>{request.additionalServices}</Text>
+      </View>
+      <View style={[styles.label, styles.labelPaymentAmount]}>
+        <Text>Payment Amount:</Text>
+        <Text style={[styles.value, styles.lightValue]}>{request.pricingDetails}</Text>
+      </View>
+      <View style={[styles.label, styles.labelBookingTime]}>
+        <Text>Booking Time:</Text>
+        <Text style={[styles.value, styles.lightValue]}>{new Date(request.bookingDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</Text>
+      </View>
+      {request.bookingStatus === "ACCEPTED" && (
+        <View style={[styles.label, styles.labelContactNumber]}>
+          <Text>Contact Number:</Text>
+          <Text style={[styles.value, styles.contactNumberValue]}>{request.customerContactNumber}</Text>
+        </View>
+      )}
+
+      {request.bookingStatus === "PENDING" && 
+        <View style={styles.cardActions}>
+          <Pressable
+            style={styles.acceptButton}
+            onPress={(e) => AcceptRequest(request?.id)}
+          >
+            <Text style={styles.buttonText}>Accept</Text>
+          </Pressable>
+          <Pressable
+            style={styles.rejectButton}
+            onPress={(e) => RejectRequest(request?.id)}
+          >
+            <Text style={styles.buttonText}>Reject</Text>
+          </Pressable>
+        </View>
+      }
+    </View>
+  </View>
+))}
+
+    </ScrollView>
+  </View>
   );
 };
 
@@ -335,11 +198,6 @@ const styles = StyleSheet.create({
   FilterBtn: {
     backgroundColor: "white",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    backgroundColor: "white",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -364,6 +222,120 @@ const styles = StyleSheet.create({
   btnTxt3: {
     color: "red",
     fontWeight: "600",
+  },
+  scrollContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    gap: 30,
+  },
+  card: {
+    width: '90%',
+    maxWidth: 400,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    fontSize: 24,
+    padding: 16,
+    color: '#ffffff',
+    textAlign: 'center',
+    fontFamily: "Opensans",
+  },
+  cardBody: {
+    padding: 20,
+    backgroundColor: '#f0f4f8',
+    gap: 15,
+  },
+  label: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: 16,
+    color: '#333',
+    backgroundColor: '#e4ebf1',
+    padding: 10,
+    borderRadius: 10,
+  },
+  value: {
+    fontFamily: "CourierPrime",
+    color: '#007aff',
+  },
+  eventName: {
+    backgroundColor: '#4c9aff',
+    color: '#ffffff',
+  },
+  eventNameValue: {
+    fontFamily: "PT_Sans",
+    color: '#ffffff',
+  },
+  additionalServices: {
+    backgroundColor: '#ff6596',
+    color: '#ffffff',
+  },
+  additionalServicesValue: {
+    fontFamily: "PT_Sans",
+    color: '#ffffff',
+  },
+  cardPending: {
+    backgroundColor: '#bdc1c6',
+  },
+  cardAccepted: {
+    backgroundColor: '#45d99a',
+  },
+  cardRejected: {
+    backgroundColor: '#ff5b4c',
+  },
+  labelPaymentAmount: {
+    backgroundColor: '#57a8ff',
+    color: '#ffffff',
+  },
+  labelBookingDate: {
+    backgroundColor: '#6ecb63',
+    color: '#ffffff',
+  },
+  labelBookingTime: {
+    backgroundColor: '#ffab4c',
+    color: '#ffffff',
+  },
+  labelContactNumber: {
+    backgroundColor: '#00bcd4',
+    color: '#ffffff',
+  },
+  contactNumberValue: {
+    fontFamily: "Roboto",
+    color: '#ffffff',
+  },
+  lightValue: {
+    color: '#ffffff',
+  },
+  cardActions: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: 20,
+  },
+  acceptButton: {
+    backgroundColor: "#45d99a",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  rejectButton: {
+    backgroundColor: "#ff5b4c",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 18,
   },
 });
 

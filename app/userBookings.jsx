@@ -111,7 +111,7 @@ const Request = () => {
             <View
               style={{
                 width: 380,
-                height: 340,
+                height: 280,
                 marginBottom: 30,
                 shadowColor: "#000",
                 backgroundColor: "white",
@@ -207,88 +207,15 @@ const Request = () => {
                   {request?.additionalServices}
                 </Text>
               </Text>
-              {request?.bookingStatus === "ACCEPTED" && (
-                <>
-                  <Text
-                    style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}
-                  >
-                    Contact Number:
-                    <Text
-                      style={{
-                        paddingLeft: 20,
-                        fontWeight: "400",
-                        fontSize: 16,
-                      }}
-                    >
-                      {request?.customerContactNumber}
-                    </Text>
-                  </Text>
-                  <Text
-                    style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}
-                  >
-                    customerEmail:
-                    <Text
-                      style={{
-                        paddingLeft: 20,
-                        fontWeight: "400",
-                        fontSize: 16,
-                      }}
-                    >
-                      {request?.customerEmail}
-                    </Text>
-                  </Text>
-                </>
-              )}
-              {/* <Text style={{paddingTop:15,fontSize:18,fontWeight:'500'}}>booking Charge:<Text style={{paddingLeft:20,fontWeight:"400",fontSize:16}}>{request.bookingCharge}</Text></Text> 
-                <Text style={{paddingTop:15,fontSize:18,fontWeight:'500'}}>Booking Ammount:<Text style={{paddingLeft:20,fontWeight:"400",fontSize:16}}>{request?.bookingAmount}</Text></Text> */}
-              {request?.bookingStatus === "PENDING" && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-evenly",
-                    paddingTop: 30,
-                  }}
+              <Text style={{ paddingTop: 15, fontSize: 18, fontWeight: "500" }}>
+                Admin Contact Number:
+                <Text
+                  style={{ paddingLeft: 20, fontWeight: "400", fontSize: 16 }}
                 >
-                  <Pressable
-                    style={{
-                      backgroundColor: "#28a745",
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      borderRadius: 8,
-                    }}
-                    onPress={(e) => AcceptRequest(request?.id)}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 18,
-                      }}
-                    >
-                      Accept
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={{
-                      backgroundColor: "red",
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      borderRadius: 8,
-                    }}
-                    onPress={(e) => RejectRequest(request?.id)}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 18,
-                      }}
-                    >
-                      Reject
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
+                  {request?.adminContactNumber}
+                </Text>
+              </Text>
+          
             </View>
           ))}
         </ScrollView>

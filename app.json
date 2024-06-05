@@ -4,7 +4,7 @@
     "slug": "Jashanz",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/JashanzAppIcon.png",
+    "icon": "./assets/LogoJashanz.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/JashanzAppIcon.png",
+        "foregroundImage": "./assets/LogoJashanz.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.Jashanz"
@@ -25,7 +25,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/LogoJashanz.png"
     },
     "plugins": [
       "expo-router"

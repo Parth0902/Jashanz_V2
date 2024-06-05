@@ -1,17 +1,17 @@
-import React, { useState, useRef,useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert,Pressable } from 'react-native';
+import React, { useState, useRef, useContext } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Pressable } from 'react-native';
 import { AuthContext } from './AuthContext';
 import { useToast } from './ToastContext';
 import { useNavigation } from 'expo-router';
 
 const OtpInput = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '','']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
-  const { userOtp,userRegisterPayload,user,UserRegister} = useContext(AuthContext);
+  const { userOtp, userRegisterPayload, user, UserRegister,AdminRegister } = useContext(AuthContext);
   const { showSuccess, showError, showWarn } = useToast();
   const navigation = useNavigation();
   const handleResendOtp = async () => {
-    try { 
+    try {
       const ack = await userOtp(userRegisterPayload);
       if (ack.status === 200) {
         showSuccess('OTP sent successfully');
@@ -46,24 +46,32 @@ const OtpInput = () => {
     }
   };
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     const otpValue = otp.join('');
     if (otpValue.length === 6) {
-    
-      const ack= await UserRegister(userRegisterPayload,otpValue);
-      if(ack.status===200){
-        showSuccess('User registered successfully');
-          setTimeout(() => {
-            // Redirect to login page
-            // You can use the navigation library of your choice to navigate to the login page
-            navigation.navigate('index');
-          }, 3000);
+      if (userRegisterPayload.user===true) {
+         let ack = await UserRegister(userRegisterPayload, otpValue);
+         if (ack.status === 200) {
+          showSuccess('Registration Successfull');
+        }
+  
+        if (ack.status === 409) {
+          showError('User already registered');
+        }
+      }else{
+        let ack= await AdminRegister(userRegisterPayload,otpValue);
+        if (ack.status === 200) {
+          showSuccess('Registration Successfull');
+        }
+        else if (ack.status === 409) {
+          showError('Admin already registered');
+        }else {
+          showError('wrong otpc');
+        }
       }
-      if(ack.status===403){
-        showError('User already registered');
-      }
+   
     } else {
-        showWarn('Please enter a valid OTP');
+      showWarn('Please enter a valid OTP');
     }
   };
 
@@ -84,9 +92,9 @@ const OtpInput = () => {
           />
         ))}
       </View>
-      <Text style={{fontSize:16, paddingTop:10,paddingBottom:10,fontFamily:"Popins"}}>Enter the otp sent by Jashanz on your registered mobile number</Text>
-      <Pressable onPress={handleResendOtp} style={{paddingTop:10,paddingBottom:10, width:"87%"}}>
-        <Text style={{fontSize:18,fontFamily:"Popins",color:'#007BFF'}}>Resend OTP</Text>
+      <Text style={{ fontSize: 16, paddingTop: 10, paddingBottom: 10, fontFamily: "Popins" }}>Enter the otp sent by Jashanz on your registered mobile number</Text>
+      <Pressable onPress={handleResendOtp} style={{ paddingTop: 10, paddingBottom: 10, width: "87%" }}>
+        <Text style={{ fontSize: 18, fontFamily: "Popins", color: '#007BFF' }}>Resend OTP</Text>
       </Pressable>
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>

@@ -35,6 +35,9 @@ const AuthenticationGate = () => {
     'Popins':require('../assets/fonts/Poppins-Medium.ttf'),
     'RobotoMed':require('../assets/fonts/Roboto-Medium.ttf'),
     'Opensans':require('../assets/fonts/static/OpenSans-Medium.ttf'),
+    'CourierPrime':require('../assets/fonts/Courier_Prime/CourierPrime-Regular.ttf'),
+    'Comfortaa':require('../assets/fonts/Comfortaa/Comfortaa-Regular.ttf'),
+    'PT_Sans':require('../assets/fonts/PT_Sans/PTSans-Regular.ttf'),
     
 
   });

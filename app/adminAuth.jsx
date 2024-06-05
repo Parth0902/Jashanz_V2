@@ -22,7 +22,7 @@ export default function AdminAuth() {
     const handlePress = () => {
         setCurrentScreen(false);
     }
-   
+
 
     const handleErrorResponse = (response) => {
         let errorMessage = "Invalid username or password";
@@ -34,17 +34,17 @@ export default function AdminAuth() {
 
     const handleSubmit = async () => {
         try {
-            if(payload.emailormobile === "" || payload.password === ""){
+            if (payload.emailormobile === "" || payload.password === "") {
                 showWarn("Please fill all the fields");
-              }
-              else{
-                  const ack = await AdminLogin(payload);
-                  if (ack.status === 200) {
-                      navigation.navigate('index');
-                  }
-                   else {
-                      handleErrorResponse(ack);
-                     }
+            }
+            else {
+                const ack = await AdminLogin(payload);
+                if (ack.status === 200) {
+                    navigation.navigate('index');
+                }
+                else {
+                    handleErrorResponse(ack);
+                }
             }
         } catch (err) {
             console.log(err);
@@ -53,11 +53,11 @@ export default function AdminAuth() {
 
     return (
         <View style={styles.container}>
-         
+
             {
                 currentScreen &&
                 <>
-                    <Image source={require('../assets/admin_login.png')} style={styles.LoginGraphic}/>
+                    <Image source={require('../assets/admin_login.png')} style={styles.LoginGraphic} />
                     {/* <Image
                         source={require("../assets/jashanzLogo.png")}
                         style={{ width: 150, height: 150 }}
@@ -82,11 +82,14 @@ export default function AdminAuth() {
                                 <Text style={styles.linkText} onPress={handlePress}>Register Here</Text>
 
                             </Text>
+                            <Text style={styles.linkText} onPress={() => navigation.navigate('ForgotPassword')}>
+                                Forgot Password
+                            </Text>
                             <Pressable
-                              style={[styles.btn, isPressed && styles.btnPressed]}
-                              onPressIn={() => setIsPressed(true)}
-                              onPressOut={() => setIsPressed(false)} 
-                            onPress={handleSubmit}>
+                                style={[styles.btn, isPressed && styles.btnPressed]}
+                                onPressIn={() => setIsPressed(true)}
+                                onPressOut={() => setIsPressed(false)}
+                                onPress={handleSubmit}>
                                 <Text style={styles.btn_text} >Submit</Text>
                             </Pressable>
                         </View>
@@ -114,10 +117,10 @@ const styles = StyleSheet.create({
         gap: 20,
     },
     input: {
-        width: 340, 
+        width: 340,
         height: 60,
         borderWidth: 1,
-        borderColor:"#007BFF", 
+        borderColor: "#007BFF",
         borderRadius: 6,
         paddingHorizontal: 20,
     },
@@ -127,15 +130,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     text: {
-        fontSize:17,
-        fontFamily:'Monster',
-      },
+        fontSize: 17,
+        fontFamily: 'Monster',
+    },
 
     linkText: {
         fontSize: 18,
         color: "#007BFF",
-        fontWeight:"700",
-        fontFamily:"Monster",
+        fontWeight: "700",
+        fontFamily: "Monster",
 
     },
     btn: {
@@ -153,11 +156,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5,
-      },
-    btn_text:{
+    },
+    btn_text: {
         fontSize: 18,
-        color:"white",
-        fontWeight:"700",
+        color: "white",
+        fontWeight: "700",
 
     }
 });

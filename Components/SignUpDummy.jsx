@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { AuthContext } from '../app/AuthContext';
-
+import { useToast } from '../app/ToastContext';
 const Signup = ({ setCurrentScreen }) => {
   const { userOtp } = useContext(AuthContext);
   const [isPressed, setIsPressed] = useState(false);
@@ -20,6 +20,7 @@ const Signup = ({ setCurrentScreen }) => {
   const handlePress = () => {
     setCurrentScreen(true);
   }
+  const {showSucess,showError,showWarn}=useToast();
 
   const [error, setError] = useState({
     nameError: false,
@@ -30,7 +31,7 @@ const Signup = ({ setCurrentScreen }) => {
   });
 
   const handleSubmit1 = async () => {
-    console.log("hii");
+   
     setError({
       nameError: false,
       mailError: false,
@@ -40,19 +41,19 @@ const Signup = ({ setCurrentScreen }) => {
     });
     try {
       if (validate() === false) {
-        console.log("allWell");
         const ack = await userOtp(payload);
-        console.log(ack.data);
         if (ack.status === 200) {
-          console.log(ack);
           console.log('Otp sent successfully');
           navigation.navigate('Otp'); // Ensure this matches the route name in Stack
         }
+        if(ack.status === 409){
+          showWarn("User Already Present");
+        }
+
       } else {
         throw 'Invalid Input';
       }
     } catch (err) {
-      
       console.log('Error sending OTP:', err);
     }
   };

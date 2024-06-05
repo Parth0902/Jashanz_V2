@@ -179,13 +179,6 @@ const Event = () => {
   };
 
   const HandlePayment = async () => {
-    if (!currentUser) {
-      showError("User information is not available. Please try again later.");
-      return;
-    }
-
-    stringGenerate();
-
     let headersList = {
       "Accept": "*/*",
       "Authorization": `Bearer ${Token}`

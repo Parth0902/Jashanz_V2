@@ -69,7 +69,7 @@ const Form = () => {
     const { Token } = useContext(AuthContext);
     const { AdminInfo } = useContext(AdminContext);
     const [eventData, setEventData] = useState({
-        id:2,
+        id: 2,
         eventType: AdminInfo.specialization,
         pricingDetails: {
             id: 1,
@@ -175,7 +175,7 @@ const Form = () => {
                     newStatus[index] = true;
                     return { ...prev, images: newStatus };
                 });
-                
+
             }
         } catch (error) {
             console.error("Error uploading image:", error);
@@ -267,29 +267,30 @@ const Form = () => {
     const handleSubmit = async () => {
         try {
             console.log("Checking event existence...");
-    
+
             // Define headers for authorization
             const headers = {
                 "Accept": "*/*",
                 "Authorization": `Bearer ${Token}`,
             };
-    
+
             // Check if the event is already present
             const checkResponse = await fetch(`${url}/admin/add-event/checkPresent`, {
                 method: "GET",
                 headers: headers,
             });
-    
+
             const checkData = await checkResponse.text();
             console.log(checkData);
-    
+
             if (checkResponse.status === 200) {
                 console.log("Event does not exist. Proceeding to add event...");
-    
+        
+
                 // Convert eventData to JSON string
                 const eventPayload = JSON.stringify(eventData);
                 console.log(eventPayload);
-    
+
                 // Upload the new event
                 const uploadResponse = await fetch(`${url}/admin/add-event/upload-event`, {
                     method: "POST",
@@ -299,13 +300,13 @@ const Form = () => {
                         "Content-Type": "application/json"
                     },
                 });
-    
+
                 const uploadData = await uploadResponse.text();
                 console.log(uploadResponse.status);
                 console.log(uploadData);
-    
+
                 if (uploadResponse.status === 200) {
-                   showSuccess("Event added successfully");
+                    showSuccess("Event added successfully");
                 } else {
                     showError("Error adding event");
                 }
@@ -322,7 +323,7 @@ const Form = () => {
             });
         }
     };
-    
+
     return (
         <View style={styles.container}>
             {/* <Toast style={{ elevation: 300, zIndex: 1000 }} /> */}
@@ -548,10 +549,10 @@ const Form = () => {
                     <AdditionalService visible={dialogVisible} onClose={handleCloseDialog} onSubmit={handleAddService} />
 
                     <Pressable
-                      style={[styles.SubmitBtn, isPressed && styles.btnPressed]}
-                      onPressIn={() => setIsPressed(true)}
-                      onPressOut={() => setIsPressed(false)} 
-                     onPress={handleSubmit}>
+                        style={[styles.SubmitBtn, isPressed && styles.btnPressed]}
+                        onPressIn={() => setIsPressed(true)}
+                        onPressOut={() => setIsPressed(false)}
+                        onPress={handleSubmit}>
                         <Text style={styles.SubmitBtnTxt}>Submit</Text>
                     </Pressable>
                 </View>
@@ -601,7 +602,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     inputField: {
-        width: "80%",
+        width: 340,
         height: 60,
         borderWidth: 1,
         borderColor: "#007BFF",
@@ -625,14 +626,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         height: 60,
-    },btnPressed: {
+    }, btnPressed: {
         backgroundColor: '#0056b3', // Darker blue color
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5,
-      },
+    },
     SubmitBtnTxt: {
         fontSize: 18,
         color: "white",
