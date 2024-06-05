@@ -19,11 +19,11 @@ const AdminSignup = ({ setCurrentScreen }) => {
   });
 
   const RolesData = [
-    { label: 'Birthday Booking (Birthday Hall)', value: 'Birthday Booking (Birthday Hall)' },
-    { label: 'Marriage Ceremony Booking (Banquets)', value: 'Marriage Ceremony Booking (Banquets)' },
-    { label: 'Get Together / Party Booking (Party Hall)', value: 'Get Together / Party Booking (Party Hall)' },
-    { label: 'Occasion Organizers (Event Management Team)', value: 'Occasion Organizers (Event Management Team)' },
-    { label: "Disc Jockey (DJ's)", value: "Disc Jockey (DJ's)" },
+    { label: 'Birthday Booking (Birthday Hall)', value: 'Birthday' },
+    { label: 'Marriage Ceremony Booking (Banquets)', value: 'Marriage Ceremony' },
+    { label: 'Get Together / Party Booking (Party Hall)', value: 'Get Together' },
+    { label: 'Occasion Organizers (Event Management Team)', value: 'Occasion Organizers' },
+    { label: "Disc Jockey (DJ's)", value: "Disc Jockey" },
     { label: 'Performers', value: 'Performers' },
     { label: 'Decorators', value: 'Decorators' },
     { label: 'Hosts', value: 'Hosts' },
