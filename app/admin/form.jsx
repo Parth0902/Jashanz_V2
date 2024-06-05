@@ -146,10 +146,11 @@ const Form = () => {
             };
 
             let formdata = new FormData();
+            const timestamp = new Date().getTime(); 
             formdata.append("image", {
                 uri: Images[index].uri,
                 type: 'image/jpeg', // or the appropriate mime type
-                name: `image_${index}.jpg`, // or a meaningful name for the file
+                name: `image_${index}_${timestamp}.jpg`, // or a meaningful name for the file
             });
 
             let response = await fetch(`${url}/admin/add-event/upload-image`, {
@@ -420,6 +421,11 @@ const Form = () => {
                                         onPress={e => setImages((prev) => {
                                             let temp = [...prev];
                                             temp.splice(index, 1);
+                                            setUploadStatus((prev) => {
+                                                let temp = [...prev.images];
+                                                temp.splice(index, 1);
+                                                return { ...prev, images: temp };
+                                            });
 
                                         })
                                         }

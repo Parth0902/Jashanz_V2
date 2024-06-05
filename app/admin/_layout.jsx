@@ -6,14 +6,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthContext } from "../AuthContext";
 import { AdminContext } from "../AdminContext";
 import { Redirect } from "expo-router";
-import Toast from "react-native-toast-message";
+import { useToast } from '../ToastContext';
 import axios from "axios";
 const { url } = process.env;
-export default function Layout() {
-  // Define a custom header component
 
+export default function Layout() {
   const [isLogout, setIsLogout] = useState(false);
-  const { Token, logout, currentAdmin,IsAdmin } = useContext(AuthContext);
+  const { Token, logout, currentAdmin, IsAdmin } = useContext(AuthContext);
   const {
     setAdminId,
     adminId,
@@ -21,14 +20,16 @@ export default function Layout() {
     setAllRequests,
     countR,
     setCountR,
-    setAdminInfo
+    setAdminInfo,
+    refresh,
+    setRefresh
   } = useContext(AdminContext);
+  const { showSuccess, showError, showWarn } = useToast();
 
   const handleLogout = () => {
     logout();
     setIsLogout(true);
   };
-
 
   useEffect(() => {
     const fetchAdminId = async () => {
@@ -42,69 +43,84 @@ export default function Layout() {
         method: "GET",
         headers: headersList,
       };
-      if(IsAdmin){
+      if (IsAdmin) {
         const res = await axios.request(reqOptions1);
         if (res.status === 200) {
           setAdminId(res.data.id);
-          console.log(res.data.id);
           setAdminInfo(res.data);
         }
       }
     };
-    if(currentAdmin){
+
+    if (currentAdmin) {
       fetchAdminId();
     }
-  }, []);
+  }, [currentAdmin, IsAdmin, Token]);
+
+ 
+
+  const fetchRequests = async () => {
+    let headersList = {
+      Accept: "*/*",
+      Authorization: `Bearer ${Token}`,
+    };
+
+    if (adminId) {
+      let response = await fetch(`${url}/bookings/receiverequest/${adminId}`, {
+        method: "GET",
+        headers: headersList
+      });
+
+      if (response.status === 200) {
+        let data = await response.text();
+        data = JSON.parse(data);
+
+        const PendingReqs = data.filter(
+          (request) => request.bookingStatus === "PENDING"
+        );
+        setRequests(data);
+        setCountR(PendingReqs.length);
+        setAllRequests(data);
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      let headersList = {
-        Accept: "*/*",
-        Authorization: `Bearer ${Token}`,
-      };
-
-    
-      if (adminId) {
-          let response = await fetch( `${url}/bookings/receiverequest/${adminId}`, { 
-            method: "GET",
-            headers: headersList
-          });
-  
-        if (response.status === 200) {
-            let data = await response.text()
-            data = JSON.parse(data);
-       
-            const PendingReqs =data.filter(
-            (request) => request.bookingStatus === "PENDING"
-          );
-          setRequests(PendingReqs);
-          setCountR(PendingReqs.length);
-          setAllRequests(response.data);
-        }
-      }
-    };
     fetchRequests();
-  }, [adminId]);
+  }, [adminId, Token]);
 
   if (isLogout) {
     return <Redirect href={"/"} />;
   }
 
-  const CustomHeader = ({ handleLogout }) => (
+  const CustomHeader = ({ handleLogout, showRefresh }) => (
     <SafeAreaView style={styles.profileBox}>
       <View style={styles.profileContainer}>
         <Image
           source={require("../../assets/JashanzLogo.jpeg")}
           style={styles.headerLogo}
         />
-        <AntDesign
-          name="logout"
-          size={24}
-          color="black"
-          onPress={handleLogout}
-        />
+        <View style={styles.iconContainer}>
+          {showRefresh && (
+            <MaterialIcons
+              name="refresh"
+              size={24}
+              color="black"
+              onPress={() => {
+                console.log(refresh);
+                setRefresh(!refresh);
+              }}
+              style={styles.refreshIcon}
+            />
+          )}
+          <AntDesign
+            name="logout"
+            size={24}
+            color="black"
+            onPress={handleLogout}
+          />
+        </View>
       </View>
-      <Toast style={{ elevation: 3, zIndex: 1000 }} />
     </SafeAreaView>
   );
 
@@ -125,8 +141,7 @@ export default function Layout() {
             height: 65,
           },
           title: "Profile",
-          // Set custom header for the tab
-          header: () => <CustomHeader handleLogout={handleLogout} />,
+          header: () => <CustomHeader handleLogout={handleLogout} showRefresh={false} />,
         }}
       ></Tabs.Screen>
       <Tabs.Screen
@@ -142,8 +157,7 @@ export default function Layout() {
             height: 65,
           },
           title: "Add Event",
-          // Set custom header for the tab
-          header: () => <CustomHeader handleLogout={handleLogout} />,
+          header: () => <CustomHeader handleLogout={handleLogout} showRefresh={false} />,
         }}
       ></Tabs.Screen>
       <Tabs.Screen
@@ -161,58 +175,51 @@ export default function Layout() {
             height: 65,
           },
           title: "My Event",
-          // Set custom header for the tab
-          header: () => <CustomHeader handleLogout={handleLogout} />,
+          header: () => <CustomHeader handleLogout={handleLogout} showRefresh={true} />,
         }}
       ></Tabs.Screen>
       <Tabs.Screen
         name="request"
         options={{
           tabBarLabel: () => (
-            <View style={{ alignItems: 'center',gap:7 }}>
-              <View style={{ flexDirection: "row",position:'relative', alignItems: "center" }}>
-                  <Text style={{ color: "red", fontSize: 12,position:'absolute',bottom:22,right:0}}>{countR}</Text>
-                  <MaterialIcons name="chat" size={24} color="black" />
+            <View style={{ alignItems: 'center', gap: 7 }}>
+              <View style={{ flexDirection: "row", position: 'relative', alignItems: "center" }}>
+                <Text style={{ color: "red", fontSize: 12, position: 'absolute', bottom: 22, right: 0 }}>{countR}</Text>
+                <MaterialIcons name="chat" size={24} color="black" />
               </View>
-              <Text style={{ fontSize: 10,color:'gray' }}>Requests</Text>
+              <Text style={{ fontSize: 10, color: 'gray' }}>Requests</Text>
             </View>
           ),
-          tabBarIcon: () => null, // This line ensures no additional icon is rendered, keeping your custom layout clean
+          tabBarIcon: () => null,
           tabBarItemStyle: {
             gap: 5,
             paddingVertical: 7,
           },
           tabBarStyle: {
-            height: 65, // You might want to adjust this if your text or layout appears clipped
+            height: 65,
           },
           title: "Request",
-          // Set custom header for the tab
-          header: () => <CustomHeader handleLogout={handleLogout} />,
+          header: () => <CustomHeader handleLogout={handleLogout} showRefresh={true} />,
         }}
       ></Tabs.Screen>
     </Tabs>
   );
 }
 
-// Define styles for your custom header
 const styles = StyleSheet.create({
   headerLogo: {
     height: 30,
     width: 120,
   },
-  profile: {
-    position: "relative",
-    bottom: 1,
-  },
   profileBox: {
     flex: 1,
     paddingBottom: 65,
     backgroundColor: "white",
-    elevation: 5, // Set the elevation to create a shadow effect
-    shadowColor: "black", // Set the shadow color
-    shadowOffset: { width: 0, height: 2 }, // Set the shadow offset
-    shadowOpacity: 0.2, // Set the shadow opacity
-    shadowRadius: 4, // Set the shadow radius
+    elevation: 5,
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   profileContainer: {
     height: 70,
@@ -222,7 +229,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     elevation: 1,
   },
-  profileText: {
-    color: "black",
+  iconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  refreshIcon: {
+    marginRight: 15, // Adjust the spacing as needed
   },
 });

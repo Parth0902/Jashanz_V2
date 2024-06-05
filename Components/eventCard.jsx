@@ -15,7 +15,7 @@ const EventCard = ({ event }) => {
     <Link style={styles.ActionBtn} href={{ pathname: 'tabs/eventPage', params: { event: JSON.stringify(event) } }} onPress={handlePress}>
       <View style={styles.eventCard}>
         <Image
-          source={{ uri: `${event.images[0].imgUrl}` }}
+          source={{ uri: `${event?.images[0]?.imgUrl}` }}
           style={styles.eventImg}
         />
         <View style={styles.eventContent}>

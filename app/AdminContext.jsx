@@ -9,6 +9,7 @@ export const AdminProvider = ({ children }) => {
   const [adminId, setAdminId] = useState(null);
   const [AdminInfo, setAdminInfo] = useState(null);
   const [requests, setRequests] = useState([]);
+  const [refresh, setRefresh] = useState(false);
   const [allRequests, setAllRequests] = useState([]);
   const [countR, setCountR] = useState(0);
   
@@ -25,7 +26,9 @@ export const AdminProvider = ({ children }) => {
         countR,
         setCountR,
         AdminInfo,
-        setAdminInfo
+        setAdminInfo,
+        refresh,
+        setRefresh
       }}
     >
       {children}

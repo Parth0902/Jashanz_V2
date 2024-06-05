@@ -13,28 +13,27 @@ import {
     TouchableOpacity
 } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import axios from 'axios';
+import { useToast } from '../ToastContext';
 import { AuthContext } from "../AuthContext";
 import { AdminContext } from '../AdminContext';
-import { useToast } from '../ToastContext';
+
 const { url } = process.env;
 import Carousel from "../../Components/carousel";
 
 const Event = () => {
     const width = Dimensions.get('window').width;
-    const { Token, currentAdmin } = useContext(AuthContext);
-    const { adminId } = useContext(AdminContext);
+    const { Token, currentAdmin} = useContext(AuthContext);
+    const { adminId,refresh } = useContext(AdminContext);
     const video = React.useRef(null);
-    const [status, setStatus] = React.useState({});
-    const [eventData, setEveData] = useState(null);
-    const [value, setValue] = useState();
-    const [isFocus, setIsFocus] = useState(false);
     const [additionalServices, setAdditionalServices] = useState([]);
-    const [selectedServices, setSelectedServices] = useState([]);
     const [isPlaying, setIsPlaying] = useState(true);
     const { showSuccess, showError, showWarn } = useToast();
     const [isPressed, setIsPressed] = useState(false);
+    const [events, setEvents] = useState(null);
+  
+    
+
+ 
     const handleVideoLoaded = () => {
         const play = async () => {
             if (video.current) {
@@ -62,15 +61,16 @@ const Event = () => {
             };
 
 
-            let response = await fetch(`${url}/admin/add-event/delete/${eventData?.id}`, {
+            let response = await fetch(`${url}/admin/add-event/delete/${events?.id}`, {
                 method: "DELETE",
                 headers: headersList
             });
 
             let data = await response.text();
+            console.log(data);
             if (response.status === 200) {
                 showSuccess("Event deleted successfully");
-                setEveData(null);
+                setEvents(null);
             }
             else {
                 showError(data);
@@ -81,59 +81,62 @@ const Event = () => {
 
 
     };
-
+    
     useEffect(() => {
+
         const fetchEvent = async () => {
             const headersList = {
-                Accept: "*/*",
-                Authorization: `Bearer ${Token}`,
+              Accept: "*/*",
+              Authorization: `Bearer ${Token}`,
             };
-
+        
             const reqOptions2 = {
-                method: "GET",
-                headers: headersList,
+              method: "GET",
+              headers: headersList,
             };
-
-            const filterData = (event) => {
-                setAdditionalServices([]);
-                event.pricingDetails.additionalServices.forEach(priceData => {
-                    let t = { label: `${priceData.serviceName} = ${priceData.price}`, value: priceData.price };
-                    setAdditionalServices(prev => ([...prev, t]));
-                });
-            };
-
+        
             try {
-                if (adminId !== null) {
-                    console.log(adminId);
-                    const res = await fetch(`${url}/admin/add-event/getevent/${adminId}`, reqOptions2);
-
-                    if (res.status === 200) {
-                        const data = await res.json();
-                        console.log(data[0]);
-                        setEveData(data[0]);
-                        filterData(data[0]);
-                        console.log(data[0].pricingDetails.additionalServices);
-                    } else if (res.status === 404) {
-                        showWarn("No event added yet");
-                    }
+              if (adminId !== null) {
+                const res = await fetch(`${url}/admin/add-event/getevent/${adminId}`, reqOptions2);
+                if (res.status === 200) {
+                  const data = await res.json();
+                  setEvents(data[0]);
                 }
+        
+                if (res.status === 404) {
+                  showWarn("No event added yet");
+                }
+              }
             } catch (err) {
-                showError("Error fetching event data:", err);
+              showError("Error fetching event data:", err);
             }
-        };
-
+          };
         fetchEvent();
+        const filterData = (event) => {
+            setAdditionalServices([]);
+            event.pricingDetails.additionalServices.forEach(priceData => {
+                let t = { label: `${priceData.serviceName} = ${priceData.price}`, value: priceData.price };
+                setAdditionalServices(prev => ([...prev, t]));
+            });
+        };
+        if(events){
+            filterData(events);
+        }
+      }, [ Token,refresh]);
 
-    }, [adminId]);
 
-    if (!eventData) {
-        // Return loading state or placeholder
+    if (events=== null) {
+
         return <Text>No events</Text>;
     }
 
+
+
+  
+
     return (
         <View style={styles.container}>
-            <Text style={styles.eventName}>{eventData.eventType}</Text>
+            <Text style={styles.eventName}>{events?.eventType}</Text>
             <ScrollView style={{ width: "100%" }}>
                 <View style={styles.container2}>
                     <View style={styles.container3}>
@@ -142,7 +145,7 @@ const Event = () => {
                                 ref={video}
                                 style={styles.video}
                                 source={{
-                                    uri: `${eventData.videoUrl}`,
+                                    uri: `${events?.videoUrl}`,
                                 }}
                                 useNativeControls={false}
                                 resizeMode={ResizeMode.COVER}
@@ -159,44 +162,44 @@ const Event = () => {
                         </View>
 
                         <View style={styles.CarouselContainer}>
-                            <Carousel images={eventData?.images} />
+                            <Carousel images={events?.images} />
                         </View>
                         <View style={styles.textBox}>
                             <View style={styles.box}>
                                 <Text style={styles.boxTextHeading}>
                                     Program:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.eventType}
+                                        {events.eventType}
                                     </Text>
                                 </Text>
                                 <Text style={styles.boxTextHeading}>
                                     Base Price:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.pricingDetails.basePrice}
+                                        {events.pricingDetails.basePrice}
                                     </Text>
                                 </Text>
                                 <Text style={styles.boxTextHeading}>
                                     State:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.address.state}
+                                        {events.address.state}
                                     </Text>
                                 </Text>
                                 <Text style={styles.boxTextHeading}>
                                     City:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.address.city}
+                                        {events.address.city}
                                     </Text>
                                 </Text>
                                 <Text style={styles.boxTextHeading}>
                                     PinCode:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.address.pinCode}
+                                        {events.address.pinCode}
                                     </Text>
                                 </Text>
                                 <Text style={styles.boxTextHeading}>
                                     Landmark:{" "}
                                     <Text style={styles.boxSubheading}>
-                                        {eventData.address.landmark}
+                                        {events.address.landmark}
                                     </Text>
                                 </Text>
                             </View>
@@ -208,7 +211,7 @@ const Event = () => {
                                 <View style={styles.row}>
                                     <Text style={styles.cell}>Base Price</Text>
                                     <Text style={styles.cell}>
-                                        {eventData.pricingDetails.basePrice}
+                                        {events.pricingDetails.basePrice}
                                     </Text>
                                 </View>
                                 {additionalServices.map((service, index) => {
@@ -225,12 +228,13 @@ const Event = () => {
 
                         </View>
                     </View>
+
                     <Pressable
                         style={[styles.SubmitBtn, isPressed && styles.btnPressed]}
                         onPressIn={() => setIsPressed(true)}
                         onPressOut={() => setIsPressed(false)}
                         onPress={handleDelete}>
-                        <Text style={styles.SubmitBtnTxt}>Delete Event</Text>
+                     <Text style={styles.SubmitBtnTxt}>Delete Event</Text>   
                     </Pressable>
                 </View>
             </ScrollView>
@@ -363,10 +367,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         padding: 10,
         width: 150,
-        height:12,
+        height:52,
         borderRadius:12,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom:10,
     }, btnPressed: {
         backgroundColor: '#8B0000',
         shadowColor: '#000',

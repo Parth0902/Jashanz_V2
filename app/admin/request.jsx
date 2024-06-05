@@ -18,35 +18,35 @@ const Request = () => {
   const { Token, currentAdmin } = useContext(AuthContext);
   const { adminId } = useContext(AdminContext);
   const { showError, showWarn, showSuccess } = useToast();
-
-  useEffect(() => {
-    const fetchRequests = async () => {
-      const headersList = {
-        Accept: "*/*",
-        Authorization: `Bearer ${Token}`,
-      };
-
-      const reqOptions = {
-        method: "GET",
-        headers: headersList,
-      };
-
-      try {
-        if (adminId) {
-          const response = await fetch(`${url}/bookings/receiverequest/${adminId}`, reqOptions);
-          if (response.status === 200) {
-            const data = await response.json();
-            setRequests(data);
-            setAllRequests(data);
-          } else if (response.status === 404) {
-            showWarn("No requests found");
-          }
-        }
-      } catch (err) {
-        showError("Error fetching requests:", err);
-      }
+  
+  const fetchRequests = async () => {
+    const headersList = {
+      Accept: "*/*",
+      Authorization: `Bearer ${Token}`,
     };
 
+    const reqOptions = {
+      method: "GET",
+      headers: headersList,
+    };
+
+    try {
+      if (adminId) {
+        const response = await fetch(`${url}/bookings/receiverequest/${adminId}`, reqOptions);
+        if (response.status === 200) {
+          const data = await response.json();
+          setRequests(data);
+          setAllRequests(data);
+        } else if (response.status === 404) {
+          showWarn("No requests found");
+        }
+      }
+    } catch (err) {
+      showError("Error fetching requests:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchRequests();
   }, []);
 
