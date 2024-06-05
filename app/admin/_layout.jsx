@@ -87,7 +87,7 @@ export default function Layout() {
 
   useEffect(() => {
     fetchRequests();
-  }, [adminId, Token]);
+  }, [adminId, Token,refresh]);
 
   if (isLogout) {
     return <Redirect href={"/"} />;
