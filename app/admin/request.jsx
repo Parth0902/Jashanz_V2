@@ -57,7 +57,7 @@ const Request = () => {
     };
 
     let reqOptions = {
-      url: `http://backend.jashanz.com/bookings/accept/${id}`,
+      url: `https://backend.jashanz.com/bookings/accept/${id}`,
       method: "GET",
       headers: headersList,
     };
@@ -81,7 +81,7 @@ const Request = () => {
     };
 
     let reqOptions = {
-      url: `http://backend.jashanz.com/bookings/reject/${id}`,
+      url: `https://backend.jashanz.com/bookings/reject/${id}`,
       method: "GET",
       headers: headersList,
     };
